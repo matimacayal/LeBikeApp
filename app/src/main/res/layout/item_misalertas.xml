@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="15dp"
+    android:paddingBottom="15dp"
+    android:orientation="horizontal"
+    android:gravity="">
+
+    <FrameLayout
+        android:layout_width="40dp"
+        android:layout_height="40dp">
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/shape_green_circle"
+            android:id="@+id/posneg_item_misalertas"/>
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="3dp"
+            android:paddingLeft="0dp"
+            android:src="@drawable/ic_local_florist_white_24dp"
+            android:id="@+id/type_item_misalertas"
+            />
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginLeft="15dp"
+        android:layout_weight="1">
+        <TextView
+            android:id="@+id/desc_item_misalertas"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#000000"
+            android:text="'' Título todo largo que sobrepasa el largo de la weaa, vamos que se puede por la chucha! ''"
+            android:textSize="16sp"
+            android:layout_marginTop="2dp"/>
+        <TextView
+            android:id="@+id/fecha_item_misalertas"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#757575"
+            android:text="Hace 3 minutos"
+            android:layout_marginTop="5dp"
+            android:textSize="14sp"/>
+    </LinearLayout>
+
+    <View
+        android:layout_width="20dp"
+        android:layout_height="0dp"
+        android:layout_weight="0"/>
+
+    <ImageView
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:src="@drawable/ic_camara_gris"
+        android:background="#00000000"
+        android:adjustViewBounds="false"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="8dp"
+        android:id="@+id/camara_item_misalertas"/>
+
+    <ImageView
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:src="@drawable/ic_editar"
+        android:background="#00000000"
+        android:adjustViewBounds="false"
+        android:id="@+id/edit_misalertas_item"
+        android:layout_marginTop="8dp"/>
+
+</LinearLayout>

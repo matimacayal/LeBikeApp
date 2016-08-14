@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/fondo_lebike_activity_copia">
+
+    <Button
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_gravity="right"
+        android:layout_marginRight="15dp"
+        android:layout_marginTop="40dp"
+        android:background="@drawable/ic_gps_fixed_white_24dp"
+        android:visibility="invisible"/>
+
+    <LinearLayout
+        android:layout_width="@dimen/lebike_dondevas_width"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="vertical"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center">
+        <View
+            android:layout_width="0dp"
+            android:layout_height="20dp"/>
+        <ImageView
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@drawable/ic_lebike_icon_white_big"
+            android:layout_gravity="center_horizontal"/>
+        <View
+            android:layout_width="0dp"
+            android:layout_height="20dp"/>
+        <TextView
+            android:layout_width="170dp"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="¿A DÓNDE VAS?"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:textColor="#fdfbf8"/>
+        <View
+            android:layout_width="0dp"
+            android:layout_height="10dp"/>
+        <ListView
+            android:id="@+id/destinationsList"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:divider="@null"
+            android:dividerHeight="12dp"
+            android:visibility="visible">
+        </ListView>
+        <TextView
+            android:id="@+id/agregaDestinoEditText"
+            android:layout_marginTop="30dp"
+            android:layout_width="match_parent"
+            android:layout_height="170dp"
+            android:gravity="center_horizontal"
+            android:text="Agrega un destino :)"
+            android:textSize="20sp"
+            android:textColor="#ffffff"
+            android:visibility="gone"/>
+
+        <Button
+            android:id="@+id/destination_otro"
+            android:layout_width="@dimen/nuevo_destino_button_size"
+            android:layout_height="@dimen/nuevo_destino_button_size"
+            android:layout_gravity="right"
+            android:layout_marginTop="-30dp"
+            android:gravity="center"
+            android:textColor="#5f5f5f"
+            android:textSize="15sp"
+            android:background="@drawable/ic_nuevo_destino_button"
+            android:onClick="otroRoute"/>/>
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/bottom_bar_horizontal_margin"
+        android:layout_marginRight="@dimen/bottom_bar_horizontal_margin"
+        android:layout_marginBottom="10dp"
+        android:orientation="horizontal">
+        <Button
+            android:layout_width="@dimen/bottom_bar_buttons_size"
+            android:layout_height="@dimen/bottom_bar_buttons_size"
+            android:background="@drawable/ic_destinos"
+            android:textSize="12sp"
+            android:onClick="misDestinos"/>
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+        <Button
+            android:layout_width="@dimen/bottom_bar_buttons_size"
+            android:layout_height="@dimen/bottom_bar_buttons_size"
+            android:background="@drawable/ic_misalertas"
+            android:textSize="12sp"
+            android:onClick="misAlertas"/>
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+        <Button
+            android:layout_width="@dimen/bottom_bar_buttons_size"
+            android:layout_height="@dimen/bottom_bar_buttons_size"
+            android:background="@drawable/ic_miperfil"
+            android:textSize="12sp"/>
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+        <Button
+            android:layout_width="@dimen/bottom_bar_buttons_size"
+            android:layout_height="@dimen/bottom_bar_buttons_size"
+            android:background="@drawable/ic_misamigos"
+            android:textSize="12sp"/>
+    </LinearLayout>
+
+</LinearLayout>

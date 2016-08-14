@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:orientation="vertical">
+        <ListView
+            android:id="@+id/misdestinos_listview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="visible">
+        </ListView>
+        <TextView
+            android:id="@+id/no_destinos_textview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="No hay destinos"
+            android:visibility="gone"/>
+
+    </LinearLayout>
+
+    <!-- Edicion de destino -->
+    <LinearLayout
+        android:id="@+id/edit_destination_subwindow"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="100dp"
+        android:layout_gravity="center_horizontal"
+        android:background="#faf8f6"
+        android:elevation="16dp"
+        android:visibility="gone">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="18dp">
+            <ImageView
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:src="@drawable/ic_cruz"
+                android:layout_gravity="right"
+                android:onClick="closeNewDestination"/>
+            <View
+                android:layout_width="0dp"
+                android:layout_height="30dp"/>
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"
+                android:hint="Dirección"
+                android:textColorHint="#a6a4a2"/>
+            <View
+                android:layout_width="0dp"
+                android:layout_height="30dp"/>
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Nombre Destino"
+                android:textSize="14dp"
+                android:textColorHint="#a6a4a2"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|right"
+            android:orientation="horizontal"
+            android:padding="15dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#00ffffff"
+                android:textSize="14sp"
+                android:textColor="#000000"
+                android:text="GUARDAR"
+                android:onClick="closeNewDestination"/>
+            <View
+                android:layout_width="10dp"
+                android:layout_height="0dp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#00000000"
+                android:textSize="14sp"
+                android:textColor="#000000"
+                android:text="DESCARTAR"
+                android:onClick="closeNewDestination"/>
+        </LinearLayout>
+        
+    </LinearLayout>
+
+    <ImageView
+        android:layout_width="55dp"
+        android:layout_height="55dp"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="20dp"
+        android:background="@drawable/ic_boton_verde"
+        android:onClick="nuevoDestinozi"
+        android:adjustViewBounds="false"/>
+
+</FrameLayout>
