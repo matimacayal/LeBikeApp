@@ -12,11 +12,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MisDestinosAdapter extends ArrayAdapter<Destino>
 {
 
-    public MisDestinosAdapter(Context context2, ArrayList<Destino> destinos2)
+    public MisDestinosAdapter(Context context2, List<Destino> destinos2)
     {
         super(context2, 0, destinos2);
     }

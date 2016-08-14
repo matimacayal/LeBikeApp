@@ -277,7 +277,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
         String query = "SELECT " + TD_NOMBRE + ", "
                                  + TD_DIRECCION + ", "
                                  + TD_ID +
-                       "FROM " + DESTINOS_TABLE;
+                       " FROM " + DESTINOS_TABLE;
 
         Cursor cursor = db.rawQuery(query, null);
 

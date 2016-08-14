@@ -10,6 +10,7 @@
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
         android:orientation="vertical">
+        <!-- TODO: arreglar la vista de la lista (verso sin esfuerzo) -->
         <ListView
             android:id="@+id/misdestinos_listview"
             android:layout_width="match_parent"

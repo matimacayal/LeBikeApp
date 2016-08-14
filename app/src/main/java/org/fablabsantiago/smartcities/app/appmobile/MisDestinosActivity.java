@@ -52,8 +52,8 @@ public class MisDestinosActivity extends AppCompatActivity
             return;
         }
 
-        //MisDestinosAdapter adapter = new MisDestinosAdapter(this, FakeDataBase.getDestinos());
-        //destinosListView.setAdapter(adapter);
+        MisDestinosAdapter adapter = new MisDestinosAdapter(this, listaDestinos);
+        destinosListView.setAdapter(adapter);
     }
 
     public void nuevoDestinozi(View view)
