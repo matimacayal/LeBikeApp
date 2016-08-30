@@ -89,18 +89,18 @@ public class DatabaseHandler extends SQLiteOpenHelper
     private static final String CREATE_ALERTAS_TABLE_COMMAND =
             "CREATE TABLE " +
             ALERTAS_TABLE + "(" +
+                TA_ID          + " INTEGER, " +
                 TA_POSNEG      + " INTEGER, " +
-                TA_TIPOALERTA  + " INTEGER, " +
+                TA_LATITUDE    + " DOUBLE, " +
+                TA_LONGITUDE   + " DOUBLE," +
+                TA_TIPOALERTA  + " TEXT, " +
                 TA_HORA        + " TEXT, " +
                 TA_FECHA       + " TEXT, " +
                 TA_TITULO      + " TEXT, " +
                 TA_DESCRIPCION + " TEXT, " +
+                TA_IDRUTA      + " INTEGER, " +
                 TA_VERSION     + " INTEGER, " +
-                TA_IDRUTA      + " TEXT, " +
-                TA_LATITUDE    + " DOUBLE, " +
-                TA_LONGITUDE   + " DOUBLE," +
-                TA_ESTADO      + " TEXT," +
-                TA_ID          + " INTEGER);";
+                TA_ESTADO      + " TEXT);";
 
     public DatabaseHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -190,9 +190,9 @@ public class DatabaseHandler extends SQLiteOpenHelper
 
         ContentValues values = new ContentValues();
         values.put(TA_ID         , alerta.getId());
-        values.put(TA_POSNEG     , alerta.getPosNeg());
-        values.put(TA_LATITUDE   , alerta.getLat());
-        values.put(TA_LONGITUDE  , alerta.getLng());
+        values.put(TA_POSNEG     , (alerta.getPosNeg()) ? (int)1:(int)0);
+        values.put(TA_LATITUDE   , (double) alerta.getLat());
+        values.put(TA_LONGITUDE  , (double) alerta.getLng());
         values.put(TA_TIPOALERTA , alerta.getTipoAlerta());
         values.put(TA_HORA       , alerta.getHora());
         values.put(TA_FECHA      , alerta.getFecha());
@@ -210,7 +210,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(TA_POSNEG     , alerta.getPosNeg());
+        values.put(TA_POSNEG     , (alerta.getPosNeg()) ? 1:0);
         values.put(TA_LATITUDE   , alerta.getLat());
         values.put(TA_LONGITUDE  , alerta.getLng());
         values.put(TA_TIPOALERTA , alerta.getTipoAlerta());
@@ -326,17 +326,15 @@ public class DatabaseHandler extends SQLiteOpenHelper
 
     /*------------------------------------------------------*/
     /*----------------------- Alertas ----------------------*/
-    public List<Alerta> getAlertasByTipoRuta(int type) {
+    public List<Alerta> getAlertas() {
         SQLiteDatabase db = this.getReadableDatabase();
 
-        String tipoalerta = (type == 1) ? "completa":"pendiente";
-
-        String query = "SELECT * FROM " + ALERTAS_TABLE + " WHERE " + TA_TIPOALERTA + " = " + tipoalerta;
+        String query = "SELECT * FROM " + ALERTAS_TABLE;
 
         Cursor cursor = db.rawQuery(query, null);
 
         List<Alerta> alertas = new ArrayList<Alerta>();
-        if (cursor.moveToFirst()) {
+        if (cursor.moveToFirst()) { //returns 'false' if cursor is empty
             do {
                 alertas.add(new Alerta(cursor));
             } while(cursor.moveToNext());
@@ -345,7 +343,26 @@ public class DatabaseHandler extends SQLiteOpenHelper
 
         return alertas;
     }
+    public List<Alerta> getAlertasByEstado(String type) {
+        SQLiteDatabase db = this.getReadableDatabase();
 
+        //TODO: hacer variable publica en clase alerta -> Alerta.COMPLETA o Alerta.PENDIENTE;
+        String tipoalerta = type;
+
+        String query = "SELECT * FROM " + ALERTAS_TABLE + " WHERE " + TA_ESTADO + " = '" + tipoalerta + "'";
+
+        Cursor cursor = db.rawQuery(query, null);
+
+        List<Alerta> alertas = new ArrayList<Alerta>();
+        if (cursor.moveToFirst()) { //returns 'false' if cursor is empty
+            do {
+                alertas.add(new Alerta(cursor));
+            } while(cursor.moveToNext());
+        }
+        cursor.close();
+
+        return alertas;
+    }
     public List<Alerta> getAlertasByIdRuta(int idruta) {
         SQLiteDatabase db = this.getReadableDatabase();
 
@@ -364,4 +381,10 @@ public class DatabaseHandler extends SQLiteOpenHelper
         return alertas;
     }
 
+    public void eraseAlertasTable() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        db.execSQL("DROP TABLE IF EXISTS " + ALERTAS_TABLE);
+        //TODO: Esto está mal hecho en verdad ya que debería haber un if aquí ("si es que lo anterior funcionó")
+        db.execSQL(CREATE_ALERTAS_TABLE_COMMAND);
+    }
 }

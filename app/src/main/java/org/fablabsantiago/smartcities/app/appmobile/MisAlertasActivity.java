@@ -7,11 +7,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MisAlertasActivity extends AppCompatActivity// implements TabLayout.OnTabSelectedListener
 {
     private TabLayout tabLayout;
     private ViewPager viewPager;
+
+    DatabaseHandler baseDatos;
+    List<Alerta> listaAlertas = new ArrayList<Alerta>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -25,6 +29,10 @@ public class MisAlertasActivity extends AppCompatActivity// implements TabLayout
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
+
+        //Initializing BaseDatos
+        baseDatos = new DatabaseHandler(this);
+        baseDatos.eraseAlertasTable();
 
         //Initializing the tablayout
         tabLayout = (TabLayout) findViewById(R.id.tabLayout);
@@ -56,8 +64,6 @@ public class MisAlertasActivity extends AppCompatActivity// implements TabLayout
 
         //Initializing viewPager
         viewPager = (ViewPager) findViewById(R.id.pager);
-        MisAlertasPagerAdapter adapter = new MisAlertasPagerAdapter(getSupportFragmentManager());
-        viewPager.setAdapter(adapter);
         viewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener()
         {
             @Override
@@ -85,9 +91,30 @@ public class MisAlertasActivity extends AppCompatActivity// implements TabLayout
     {
         super.onStart();
 
-        Destination casa = FakeDataBase.createDestinationObject("Casa");
+        if (listaAlertas.isEmpty()) {
+            listaAlertas = baseDatos.getAlertas();
 
-        ArrayList<String> alertas = new ArrayList<>(casa.posHotspotsName);
+            if (listaAlertas.isEmpty()) {
+                baseDatos.newAlerta(new Alerta(2010, false, (float) 0.0, (float) 0.0, "auto", null, null,
+                                                "Cruce de autos imprudentes",
+                                                "Casi salgo volando por un auto que se precipito con mi dedo chico",
+                                                3010, 0, "completa"));
+                baseDatos.newAlerta(new Alerta(2011, true, (float) 0.0, (float) 0.0, "vias", null, null,
+                                                "Nueva ciclovia",
+                                                "esta super choriflai me encanta para venir cno mis amigos de la prepa",
+                                                3010, 0, "pendiente"));
+                baseDatos.newAlerta(new Alerta(2012, false, (float) 0.0, (float) 0.0, "peat", null, null,
+                                                "Peaton qlo",
+                                                "Que wea se cree el zarpao se te cruza y na así nomá",
+                                                3010, 0, "pendiente"));
+            }
+        }
+
+        // TODO: Ahora cada fragment hace acceso a la base de datos y carga las alertas
+        // correspondientes de manera independiente. El siguiente paso es hacer que la actividad
+        // cargue la data de la BD y la entregue a los fragments que la desplegarán en listas.
+        MisAlertasPagerAdapter adapter = new MisAlertasPagerAdapter(getSupportFragmentManager());
+        viewPager.setAdapter(adapter);
     }
 
     @Override

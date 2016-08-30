@@ -25,13 +25,10 @@ public class MisAlertasPagerAdapter extends FragmentPagerAdapter
         switch (position)
         {
             case 0:
-                //return MisAlertasCompletasTab2.newInstance(0, "COmpletas");
                 return new MisAlertasCompletasTab();
             case 1:
-                //return MisAlertasPendientesTab2.newInstance(1, "PEndientes");
                 return new MisAlertasPendientesTab();
             case 2:
-                //return MisAlertasTodasTab2.newInstance(2,"TOdas");
                 return new MisAlertasTodasTab();
             default:
                 return null;

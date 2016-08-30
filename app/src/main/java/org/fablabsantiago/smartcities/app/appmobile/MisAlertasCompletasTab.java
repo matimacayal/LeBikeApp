@@ -16,10 +16,14 @@ import java.util.List;
 
 public class MisAlertasCompletasTab extends ListFragment
 {
+    DatabaseHandler baseDatos;
+    List<Alerta> listaAlertas = new ArrayList<Alerta>();
+
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        baseDatos = new DatabaseHandler(getActivity());
     }
 
     @Override
@@ -29,18 +33,17 @@ public class MisAlertasCompletasTab extends ListFragment
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState)
-    {
+    public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        MisAlertasAdapter alertasAdapter = new MisAlertasAdapter(getActivity(), new ArrayList<String>(Arrays.asList(
-                "Conchetumare un dinosaurio",
-                "Que wea el hoyo en la calle",
-                "Hermano manso meteorito",
-                "Para la mano oe",
-                "Da lo mismo lo que ponga acá",
-                "Ver bien esto"
-        )));
+        listaAlertas = baseDatos.getAlertasByEstado("completa");
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        MisAlertasAdapter alertasAdapter = new MisAlertasAdapter(getActivity(), listaAlertas);
         setListAdapter(alertasAdapter);
+
         ListView list = getListView();
         list.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {

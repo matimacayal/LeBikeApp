@@ -9,8 +9,8 @@
     <!--  Screen Design for Food tab -->
     <TextView
         android:text="COMPLETO DE MIS ALERTAS"
-        android:padding="15dip"
-        android:textSize="18dip"
+        android:padding="15dp"
+        android:textSize="18dp"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"/>
 
