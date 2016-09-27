@@ -25,6 +25,8 @@ public class DatabaseHandler extends SQLiteOpenHelper
     public static final String TD_NOMBRE    = "nombre";
     public static final String TD_DIRECCION = "direccion";
     public static final String TD_ID        = "id";
+    public static final String TD_LATITUDE  = "latitude";
+    public static final String TD_LONGITUDE = "longitude";
 
     // Campos Tabla de Rutas
     public static final String TRS_ID        = "id";
@@ -63,7 +65,9 @@ public class DatabaseHandler extends SQLiteOpenHelper
             DESTINOS_TABLE + "(" +
                 TD_NOMBRE    + " TEXT, " +
                 TD_DIRECCION + " TEXT, " +
-                TD_ID        + " INTEGER);";
+                TD_ID        + " INTEGER, " +
+                TD_LATITUDE  + " DOUBLE, " +
+                TD_LONGITUDE + " DOUBLE);";
 
     private static final String CREATE_RUTAS_TABLE_COMMAND =
             "CREATE TABLE " +
@@ -151,8 +155,11 @@ public class DatabaseHandler extends SQLiteOpenHelper
         values.put(TD_NOMBRE   , destino.getName());
         values.put(TD_DIRECCION, destino.getDirection());
         values.put(TD_ID       , destino.getId());
+        values.put(TD_LATITUDE , (double) destino.getLatitude());
+        values.put(TD_LONGITUDE, (double) destino.getLongitude());
 
         db.insert(DESTINOS_TABLE, null, values);
+        db.close();
     }
 
     /*------------------------------------------------------*/
@@ -180,6 +187,23 @@ public class DatabaseHandler extends SQLiteOpenHelper
         values.put(TRS_DISTANCIA, ruta.getDistancia()); // *
 
         db.update(RUTAS_TABLE, values, TRS_ID + " = " + Integer.toString(ruta.getId()), null);
+    }
+
+    public void newRuta(Ruta ruta) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(TRS_ID       , ruta.getId());        // -
+        values.put(TRS_DESTID   , ruta.getDestId());    // -
+        values.put(TRS_NOMBRE   , ruta.getName());      // - , '-' => al comienzo
+        values.put(TRS_HORA     , ruta.getHora());      // -
+        values.put(TRS_FECHA    , ruta.getFecha());     // -
+        values.put(TRS_NUMPOS   , ruta.getNumPos());    // * , '*' => al fin
+        values.put(TRS_NUMNEG   , ruta.getNumNeg());    // *
+        values.put(TRS_DURACION , ruta.getDuration());  // *
+        values.put(TRS_DISTANCIA, ruta.getDistancia()); // *
+
+        db.insert(RUTAS_TABLE, null, values);
     }
 
     /*------------------------------------------------------*/
@@ -247,18 +271,21 @@ public class DatabaseHandler extends SQLiteOpenHelper
         if (cursor.moveToFirst()) {
             routePoints.add(new RoutePoint(cursor));
         }
+        cursor.close();
 
         return routePoints;
     }
 
     /*------------------------------------------------------*/
     /*---------------------- Destinos ----------------------*/
-    public Destino getDestination(String nombre) {
+    public Destino getDestinationByName(String nombre) {
         SQLiteDatabase db = this.getReadableDatabase();
 
         String query = "SELECT " + TD_NOMBRE + ", "
                                  + TD_DIRECCION + ", "
-                                 + TD_ID +
+                                 + TD_ID + ", "
+                                 + TD_LATITUDE + ", "
+                                 + TD_LONGITUDE +
                        " FROM " + DESTINOS_TABLE +
                        " WHERE " + TD_NOMBRE + " = " + nombre;
 
@@ -268,6 +295,28 @@ public class DatabaseHandler extends SQLiteOpenHelper
         if (cursor.moveToFirst()) {
             destino = new Destino(cursor);
         }
+        cursor.close();
+
+        return destino;
+    }
+    public Destino getDestinationById(int id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String query = "SELECT " + TD_NOMBRE + ", "
+                + TD_DIRECCION + ", "
+                + TD_ID + ", "
+                + TD_LATITUDE + ", "
+                + TD_LONGITUDE +
+                " FROM " + DESTINOS_TABLE +
+                " WHERE " + TD_ID + " = " + Integer.toString(id);
+
+        Cursor cursor = db.rawQuery(query, null);
+
+        Destino destino = null;
+        if (cursor.moveToFirst()) {
+            destino = new Destino(cursor);
+        }
+        cursor.close();
 
         return destino;
     }
@@ -276,7 +325,9 @@ public class DatabaseHandler extends SQLiteOpenHelper
 
         String query = "SELECT " + TD_NOMBRE + ", "
                                  + TD_DIRECCION + ", "
-                                 + TD_ID +
+                                 + TD_ID + ", "
+                                 + TD_LATITUDE + ", "
+                                 + TD_LONGITUDE +
                        " FROM " + DESTINOS_TABLE;
 
         Cursor cursor = db.rawQuery(query, null);
@@ -287,6 +338,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
                 destinos.add(new Destino(cursor));
             } while(cursor.moveToNext());
         }
+        cursor.close();
 
         return destinos;
     }
@@ -303,16 +355,35 @@ public class DatabaseHandler extends SQLiteOpenHelper
                 destinos.add(cursor.getString(0));
             } while(cursor.moveToNext());
         }
+        cursor.close();
 
         return destinos;
     }
 
     /*------------------------------------------------------*/
     /*------------------------ Rutas -----------------------*/
-    public Ruta getRoute(int id) {
+    public List<Ruta> getRutas() {
         SQLiteDatabase db = this.getReadableDatabase();
 
-        String query = "SELECT * FROM " + RUTAS_TABLE + " WHERE " + TRS_DESTID + " = " + Integer.toString(id);
+        String query = "SELECT * FROM " + RUTAS_TABLE;
+
+        Cursor cursor = db.rawQuery(query, null);
+
+        List<Ruta> rutas = new ArrayList<Ruta>();
+        if(cursor.moveToFirst()) {
+            do {
+                rutas.add(new Ruta(cursor));
+            } while(cursor.moveToNext());
+        }
+        cursor.close();
+
+        return rutas;
+    }
+
+    public Ruta getRouteById(int id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String query = "SELECT * FROM " + RUTAS_TABLE + " WHERE " + TRS_ID + " = " + Integer.toString(id);
 
         Cursor cursor = db.rawQuery(query, null);
 
@@ -320,8 +391,27 @@ public class DatabaseHandler extends SQLiteOpenHelper
         if(cursor.moveToFirst()) {
             ruta = new Ruta(cursor);
         }
+        cursor.close();
 
         return ruta;
+    }
+
+    public List<Ruta> getRoutesByDestId(int destId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String query = "SELECT * FROM " + RUTAS_TABLE + " WHERE " + TRS_DESTID + " = " + Integer.toString(destId);
+
+        Cursor cursor = db.rawQuery(query, null);
+
+        List<Ruta> rutas = new ArrayList<Ruta>();
+        if(cursor.moveToFirst()) {
+            do {
+                rutas.add(new Ruta(cursor));
+            } while(cursor.moveToNext());
+        }
+        cursor.close();
+
+        return rutas;
     }
 
     /*------------------------------------------------------*/
