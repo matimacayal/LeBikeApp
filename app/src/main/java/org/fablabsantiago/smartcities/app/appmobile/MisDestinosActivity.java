@@ -54,6 +54,44 @@ public class MisDestinosActivity extends AppCompatActivity
 
         MisDestinosAdapter adapter = new MisDestinosAdapter(this, listaDestinos);
         destinosListView.setAdapter(adapter);
+
+
+        List<Ruta> listaRutas = new ArrayList<Ruta>();
+        baseDatos = new DatabaseHandler(this);
+        listaRutas = baseDatos.getRutas();
+        Log.i("MisDestinosActivity", "num. rutas: " + Integer.toString(listaRutas.size()));
+        if (listaRutas.isEmpty()) {
+            baseDatos.newRuta(new Ruta(
+                    3051, 1044, "fablab_casa",
+                    0, 0,
+                    "07:50", "13/09/2016",
+                    2800, 9855));
+            baseDatos.newRuta(new Ruta(
+                    3052, 1044, "fablab_casa",
+                    0, 0,
+                    "18:12", "13/09/2016",
+                    2710, 9234));
+            baseDatos.newRuta(new Ruta(
+                    3053, 1045, "fablab_beauchef850",
+                    0, 0,
+                    "09:30", "26/09/2016",
+                    3502, 1460));
+            baseDatos.newRuta(new Ruta(
+                    3054, 1045, "fablab_beauchef850",
+                    0, 0,
+                    "19:58", "26/09/2016",
+                    3440, 1567));
+            baseDatos.newRuta(new Ruta(
+                    3055, 1046, "fablab_estacionmapocho",
+                    0, 0,
+                    "15:02", "23/09/2016",
+                    1807, 545));
+            baseDatos.newRuta(new Ruta(
+                    3056, 1046, "fablab_estacionmapocho",
+                    0, 0,
+                    "21:30", "23/09/2016",
+                    1630, 530));
+        }
     }
 
     public void nuevoDestinozi(View view)
@@ -79,6 +117,7 @@ public class MisDestinosActivity extends AppCompatActivity
 
         subwindow.setVisibility(View.VISIBLE);
         destinosListx.setClickable(false);
+        destinosListx.setEnabled(false);
     }
 
     public void closeNewDestination(View view)
@@ -88,5 +127,6 @@ public class MisDestinosActivity extends AppCompatActivity
 
         subwindow.setVisibility(View.GONE);
         destinosListx.setClickable(true);
+        destinosListx.setEnabled(true);
     }
 }
