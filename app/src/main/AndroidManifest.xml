@@ -39,26 +39,38 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="org.fablabsantiago.smartcities.app.appmobile.MisDestinosActivity"
-                  android:label="Mis Destinos"
+        <activity
+            android:name="org.fablabsantiago.smartcities.app.appmobile.MisDestinosActivity"
+            android:label="Mis Destinos"
             android:parentActivityName="org.fablabsantiago.smartcities.app.appmobile.LeBikeActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.fablabsantiago.smartcities.app.appmobile.LeBikeActivity"/>
         </activity>
 
-        <activity android:name="org.fablabsantiago.smartcities.app.appmobile.OnRouteMapActivity"
-                  android:label="LeBike"
-                  android:parentActivityName="org.fablabsantiago.smartcities.app.appmobile.LeBikeActivity">
+        <activity
+            android:name="org.fablabsantiago.smartcities.app.appmobile.OnRouteMapActivity"
+            android:label="LeBike"
+            android:parentActivityName="org.fablabsantiago.smartcities.app.appmobile.LeBikeActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.fablabsantiago.smartcities.app.appmobile.LeBikeActivity"/>
         </activity>
 
-        <activity android:name="org.fablabsantiago.smartcities.app.appmobile.LePatrimoniosActivity"
-                  android:label="LePatrimonios"
-                  android:theme="@style/LePatrimonios"
-                  android:parentActivityName="org.fablabsantiago.smartcities.app.appmobile.StartActivity">
+        <activity
+            android:name=".EnRutaActivity"
+            android:label="En Ruta"
+            android:parentActivityName=".LeBikeActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="org.fablabsantiago.smartcities.app.appmobile.LeBikeActivity"/>
+        </activity>
+
+        <activity
+            android:name="org.fablabsantiago.smartcities.app.appmobile.LePatrimoniosActivity"
+            android:label="LePatrimonios"
+            android:theme="@style/LePatrimonios"
+            android:parentActivityName="org.fablabsantiago.smartcities.app.appmobile.StartActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.fablabsantiago.smartcities.app.appmobile.StartActivity"/>
