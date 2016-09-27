@@ -26,6 +26,7 @@ public class LeBikeActivity extends AppCompatActivity
 
     HashMap<String, String> hmap = new HashMap<String, String>();
     List<String> listaNombresDestinos = new ArrayList<String>();
+    List<Destino> listaDestinos = new ArrayList<Destino>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,15 +35,17 @@ public class LeBikeActivity extends AppCompatActivity
         setContentView(R.layout.activity_lebike);
 
         //Revisamos si es necesario cargar base de datos.
-        if (listaNombresDestinos.isEmpty()) {
+        if (listaDestinos.isEmpty()) {
+            Log.i("LeBikeActivity","isEmpty 1");
             baseDatos = new DatabaseHandler(this);
-            listaNombresDestinos = baseDatos.getDestinationNames();
+            listaDestinos = baseDatos.getDestinations();
 
-            if (listaNombresDestinos.isEmpty()) {
-                baseDatos.newDestiny(new Destino("Casa", "Vasco de Gama 4840, Las Condes", 1044));
-                baseDatos.newDestiny(new Destino("Beauchef 850", "Vosco do Gomo 4840, Los Condos", 1045));
-                baseDatos.newDestiny(new Destino("Estacion Mapocho", "Vesce de Geme 4840, Les Cendes", 1046));
-                listaNombresDestinos = baseDatos.getDestinationNames();
+            if (listaDestinos.isEmpty()) {
+                Log.i("LeBikeActivity","isEmpty 2");
+                baseDatos.newDestiny(new Destino("Casa", "Augusto Leguía Norte 280, Las Condes", 1044, (float)-33.412900, (float)-70.597636));
+                baseDatos.newDestiny(new Destino("Beauchef 850", "Vosco do Gomo 4840, Los Condos", 1045, (float) -33.457892, (float )-70.663839));
+                baseDatos.newDestiny(new Destino("Estacion Mapocho", "Vesce de Geme 4840, Les Cendes", 1046, (float)-33.432577, (float)-70.653212));
+                listaDestinos = baseDatos.getDestinations();
             }
         }
     }
@@ -53,7 +56,7 @@ public class LeBikeActivity extends AppCompatActivity
         super.onStart();
 
         ListView destinosListView = (ListView) findViewById(R.id.destinationsList);
-        if (listaNombresDestinos.isEmpty()) {
+        if (listaDestinos.isEmpty()) {
             TextView agregaDestinoEditText = (TextView) findViewById(R.id.agregaDestinoEditText);
 
             destinosListView.setVisibility(View.GONE);
@@ -62,25 +65,29 @@ public class LeBikeActivity extends AppCompatActivity
             return;
         }
 
-        DondeVasAdapter adapter = new DondeVasAdapter(this, listaNombresDestinos);
+        DondeVasAdapter adapter = new DondeVasAdapter(this, listaDestinos);
         destinosListView.setAdapter(adapter);
 
         destinosListView.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String itemValue = (String) ((ListView) findViewById(R.id.destinationsList)).getItemAtPosition(position);
-
-                if (itemValue.equals("Casa") ||
+                Destino item = (Destino) ((ListView) findViewById(R.id.destinationsList)).getItemAtPosition(position);
+                Intent enRutaMapIntent = new Intent(context, EnRutaActivity.class);
+                Log.i("LeBikeActivity","pressed '" + item.getName() + "', id: " + Integer.toString(item.getId()));
+                enRutaMapIntent.putExtra("DESTINO_ID", item.getId());
+                startActivity(enRutaMapIntent);
+                /*if (itemValue.equals("Casa") ||
                         itemValue.equals("Beauchef 850") ||
                         itemValue.equals("Estacion Mapocho")) {
-                    Intent onRouteMapIntent = new Intent(context, OnRouteMapActivity.class);
-                    onRouteMapIntent.putExtra("DESTINO", itemValue);
-                    startActivity(onRouteMapIntent);
+                    Intent enRutaMapIntent = new Intent(context, EnRutaActivity.class);
+                    enRutaMapIntent.putExtra("DESTINO", itemValue);
+                    enRutaMapIntent.putExtra("DESTINO_ID", 1045); //destinoId default for beauchef850
+                    startActivity(enRutaMapIntent);
                 }
                 else {
                     Toast.makeText(getApplicationContext(),"Destino de demostración. Presione alguno de los primeros 3.",Toast.LENGTH_SHORT).show();
-                }
+                }*/
             }
         });
 
@@ -114,5 +121,11 @@ public class LeBikeActivity extends AppCompatActivity
         Log.i("LeBikeActivity","onMisAlertas entered");
         Intent misAlertasIntent = new Intent(this, MisAlertasActivity.class);
         startActivity(misAlertasIntent);
+    }
+
+    public void toMapActivity(View view) {
+        Log.i("LeBikeActivity","toMapActivity - in");
+        Intent enRutaMapIntent = new Intent(context, EnRutaActivity.class);
+        startActivity(enRutaMapIntent);
     }
 }
