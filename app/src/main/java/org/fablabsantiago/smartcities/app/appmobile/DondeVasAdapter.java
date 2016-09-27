@@ -12,10 +12,10 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DondeVasAdapter extends ArrayAdapter<String>
+public class DondeVasAdapter extends ArrayAdapter<Destino>
 {
 
-    public DondeVasAdapter(Context context, List<String> destinos)
+    public DondeVasAdapter(Context context, List<Destino> destinos)
     {
         super(context, 0, destinos);
         Log.i("DondeVasAdapter","num destinos: " + Integer.toString(destinos.size()));
@@ -24,7 +24,7 @@ public class DondeVasAdapter extends ArrayAdapter<String>
     @Override
     public View getView(int position, View convertView, ViewGroup parent)
     {
-        String destino = getItem(position);
+        Destino destino = getItem(position);
 
         if (convertView == null)
         {
@@ -32,7 +32,7 @@ public class DondeVasAdapter extends ArrayAdapter<String>
         }
 
         TextView dondeVoy = (TextView) convertView.findViewById(R.id.dondevas_item_text);
-        dondeVoy.setText(destino);
+        dondeVoy.setText(destino.getName());
         dondeVoy.setTypeface(null, Typeface.BOLD);
 
         return convertView;

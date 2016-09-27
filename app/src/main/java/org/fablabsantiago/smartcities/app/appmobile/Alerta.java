@@ -5,8 +5,10 @@ import android.database.Cursor;
 import android.support.design.widget.FloatingActionButton;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 
 public class Alerta {
+
     /* Fields
      *
      */
