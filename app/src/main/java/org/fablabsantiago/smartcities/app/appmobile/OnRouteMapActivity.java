@@ -143,7 +143,7 @@ public class OnRouteMapActivity extends AppCompatActivity implements
 
     public void refreshUIOnRouteStarted(boolean trackingRoute)
     {
-        ImageButton trackRouteButton = (ImageButton) findViewById(R.id.trackRouteButton);
+        ImageButton trackRouteButton = (ImageButton) findViewById(R.id.trackRouteButton2);
         int buttonText = Color.parseColor((trackingRoute)? "#CCec903a":"#00000000");
         trackRouteButton.setBackgroundColor(buttonText);
 
@@ -641,7 +641,7 @@ public class OnRouteMapActivity extends AppCompatActivity implements
         int posRuta = 0;
         int negRuta = 0;
 
-        TextView ruta1 = (TextView) findViewById(R.id.ruta1);
+        TextView ruta1 = (TextView) findViewById(R.id.ruta12);
         String ruta = (ruta1.getTextSize()/2 > 17)?"ruta1":"ruta2";
 
         for(int i = 0; i<pos3; i++)
@@ -664,11 +664,11 @@ public class OnRouteMapActivity extends AppCompatActivity implements
         posRuta = Math.round(100 * posRuta/total);
         negRuta = Math.round(100 * negRuta/total);
 
-        ProgressBar posProgressBar = (ProgressBar) findViewById(R.id.posProgressBar);
-        ProgressBar negProgressBar = (ProgressBar) findViewById(R.id.negProgressBar);
-        TextView posPercent = (TextView) findViewById(R.id.posProgressBarPercent);
-        TextView negPercent = (TextView) findViewById(R.id.negProgressBarPercent);
-        TextView points = (TextView) findViewById(R.id.routePointsTextView);
+        ProgressBar posProgressBar = (ProgressBar) findViewById(R.id.posProgressBar2);
+        ProgressBar negProgressBar = (ProgressBar) findViewById(R.id.negProgressBar2);
+        TextView posPercent = (TextView) findViewById(R.id.posProgressBarPercent2);
+        TextView negPercent = (TextView) findViewById(R.id.negProgressBarPercent2);
+        TextView points = (TextView) findViewById(R.id.routePointsTextView2);
 
         posProgressBar.setProgress(posRuta);
         negProgressBar.setProgress(negRuta);
@@ -734,12 +734,12 @@ public class OnRouteMapActivity extends AppCompatActivity implements
 
         if (id.equals("ruta1"))
         {
-            ruta_ = (TextView) findViewById(R.id.ruta2);
+            ruta_ = (TextView) findViewById(R.id.ruta22);
             elementIndex = 0;
         }
         else
         {
-            ruta_ = (TextView) findViewById(R.id.ruta1);
+            ruta_ = (TextView) findViewById(R.id.ruta12);
             elementIndex = 1;
         }
 
@@ -812,7 +812,7 @@ public class OnRouteMapActivity extends AppCompatActivity implements
 
     public void clickedTrofeo(View view)
     {
-        FrameLayout trofeo = (FrameLayout) findViewById(R.id.trofeo_framelayout);
+        FrameLayout trofeo = (FrameLayout) findViewById(R.id.trofeo_framelayout2);
         trofeo.setElevation(30);
         final Timer timer = new Timer();
         final TimerTask timerTask = new TimerTask()
@@ -820,7 +820,7 @@ public class OnRouteMapActivity extends AppCompatActivity implements
             public void run()
             {
                 timer.cancel();
-                FrameLayout trofeo = (FrameLayout) findViewById(R.id.trofeo_framelayout);
+                FrameLayout trofeo = (FrameLayout) findViewById(R.id.trofeo_framelayout2);
                 trofeo.setElevation(2);
             }
         };
@@ -1014,10 +1014,10 @@ public class OnRouteMapActivity extends AppCompatActivity implements
 
     public void getAndFilterMarkers()
     {
-        FrameLayout neg_percentage = (FrameLayout) findViewById(R.id.neg_percentage);
+        FrameLayout neg_percentage = (FrameLayout) findViewById(R.id.neg_percentage2);
         FrameLayout pos_percentage = (FrameLayout) findViewById(R.id.pos_percentage);
-        TextView ruta1 = (TextView) findViewById(R.id.ruta1);
-        TextView ruta2 = (TextView) findViewById(R.id.ruta2);
+        TextView ruta1 = (TextView) findViewById(R.id.ruta12);
+        TextView ruta2 = (TextView) findViewById(R.id.ruta22);
         CheckBox chkboxCiclo = (CheckBox) findViewById(R.id.checkbox_ciclovia);
         CheckBox chkboxVias  = (CheckBox) findViewById(R.id.checkbox_vias);
         CheckBox chkboxVeget = (CheckBox) findViewById(R.id.checkbox_vegetacion);
