@@ -308,7 +308,6 @@ public class EnRutaActivity extends AppCompatActivity implements
             );
         }
 
-
         /*---------------- Agregar nuevas alertas ------------------*/
         /*----------------------------------------------------------*/
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener()

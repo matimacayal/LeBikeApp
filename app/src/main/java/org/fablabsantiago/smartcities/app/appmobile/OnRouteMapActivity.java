@@ -1241,20 +1241,15 @@ public class OnRouteMapActivity extends AppCompatActivity implements
         return super.onOptionsItemSelected(item);
     }
 
-    public void exitBeanConnectSubactivity(View v1, View v2)
-    {
+    public void exitBeanConnectSubactivity(View v1, View v2) {
         v1.setVisibility(View.VISIBLE);
         v2.setVisibility(View.GONE);
         //Cancel bean search
-        if (connectedBean != null)
-        {
-            if (!connectedBean.isConnected())
-            {
+        if (connectedBean != null) {
+            if (!connectedBean.isConnected()) {
                 cancelScann(true);
             }
-        }
-        else
-        {
+        } else {
             cancelScann(true);
         }
     }

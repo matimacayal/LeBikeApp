@@ -89,7 +89,6 @@
         <service android:name="org.fablabsantiago.smartcities.app.appmobile.OnRouteLocationService" />
     </application>
 
-
 </manifest>
 
 <!--

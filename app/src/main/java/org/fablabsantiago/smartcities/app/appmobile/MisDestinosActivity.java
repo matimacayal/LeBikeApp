@@ -22,9 +22,9 @@ public class MisDestinosActivity extends AppCompatActivity
     List<Destino> listaDestinos = new ArrayList<Destino>();
 
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_misdestinos);
 
         Intent rxIntent = getIntent();
@@ -35,8 +35,7 @@ public class MisDestinosActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onStart()
-    {
+    protected void onStart() {
         super.onStart();
 
         if (listaDestinos.isEmpty()) {
@@ -94,8 +93,7 @@ public class MisDestinosActivity extends AppCompatActivity
         }
     }
 
-    public void nuevoDestinozi(View view)
-    {
+    public void nuevoDestinozi(View view) {
         String infoText = "Later you will be able to add new destinations and we will recomend the" +
                 " best route to get there. ";
         Toast.makeText(this,infoText,Toast.LENGTH_LONG).show();
@@ -103,15 +101,13 @@ public class MisDestinosActivity extends AppCompatActivity
         editDestination();
     }
 
-    public void editarMiDestino(View view)
-    {
+    public void editarMiDestino(View view) {
         Toast.makeText(this, "Editando ... .-.", Toast.LENGTH_SHORT).show();
 
         editDestination();
     }
 
-    protected void editDestination()
-    {
+    protected void editDestination() {
         LinearLayout subwindow = (LinearLayout) findViewById(R.id.edit_destination_subwindow);
         ListView destinosListx = (ListView) findViewById(R.id.misdestinos_listview);
 
@@ -120,8 +116,7 @@ public class MisDestinosActivity extends AppCompatActivity
         destinosListx.setEnabled(false);
     }
 
-    public void closeNewDestination(View view)
-    {
+    public void closeNewDestination(View view) {
         LinearLayout subwindow = (LinearLayout) findViewById(R.id.edit_destination_subwindow);
         ListView destinosListx = (ListView) findViewById(R.id.misdestinos_listview);
 
