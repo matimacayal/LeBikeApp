@@ -2,6 +2,7 @@ package org.fablabsantiago.smartcities.app.appmobile;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -94,11 +95,13 @@ public class MisDestinosActivity extends AppCompatActivity
     }
 
     public void nuevoDestinozi(View view) {
-        String infoText = "Later you will be able to add new destinations and we will recomend the" +
-                " best route to get there. ";
-        Toast.makeText(this,infoText,Toast.LENGTH_LONG).show();
+        //String infoText = "Later you will be able to add new destinations and we will recomend the" + " best route to get there. ";
+        //Toast.makeText(this,infoText,Toast.LENGTH_LONG).show();
 
-        editDestination();
+        //editDestination();
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        DestinoEditDialog dialog = new DestinoEditDialog();
+        dialog.show(fragmentManager, "edit_destino_fragment");
     }
 
     public void editarMiDestino(View view) {
