@@ -350,7 +350,7 @@
         android:layout_marginBottom="@dimen/bean_subactivity_vertical_margin"
         android:layout_marginLeft="@dimen/bean_subactivity_horizontal_margin"
         android:layout_marginRight="@dimen/bean_subactivity_horizontal_margin"
-        android:elevation="20dp"
+        android:elevation="40dp"
         android:visibility="gone">
 
         <FrameLayout
