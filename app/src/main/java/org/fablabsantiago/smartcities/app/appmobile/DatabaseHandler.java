@@ -162,6 +162,11 @@ public class DatabaseHandler extends SQLiteOpenHelper
         db.close();
     }
 
+    public boolean deleteDestino(int id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        return db.delete(DESTINOS_TABLE, TD_ID + " = " + Integer.toString(id), null) > 0;
+    }
+
     /*------------------------------------------------------*/
     /*------------------------ Rutas -----------------------*/
     public void startRoute(Ruta ruta) {

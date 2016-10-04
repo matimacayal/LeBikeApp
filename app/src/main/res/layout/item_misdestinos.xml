@@ -35,7 +35,6 @@
         android:adjustViewBounds="false"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
-        android:layout_marginRight="20dp"
-        android:onClick="editarMiDestino"/>
+        android:layout_marginRight="20dp"/>
 
 </RelativeLayout>
