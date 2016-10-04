@@ -43,8 +43,7 @@ public class OnRouteLocationService extends Service implements
     private String routeName;
 
     @Override
-    public void onCreate()
-    {
+    public void onCreate() {
         Log.i("OnRouteLocationService","onCreate - in");
 
         // Hay que hacer otro share preferences superior con registros de las rutas realizadas. Así
@@ -59,8 +58,7 @@ public class OnRouteLocationService extends Service implements
         routeName = "origen_destino" + "_" + date.format(new Date()) + "_" + "n";
         Log.i("OnRouteLocationService","onCreate: routeName=" + routeName + "(not used)");
 
-        if (mGoogleApiClient == null)
-        {
+        if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(this)
                     .addConnectionCallbacks(this)
                     .addOnConnectionFailedListener(this)
@@ -70,39 +68,38 @@ public class OnRouteLocationService extends Service implements
     }
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId)
-    {
+    public int onStartCommand(Intent intent, int flags, int startId) {
         // The service is starting, due to a call to startService()
         Log.i("OnRouteLocationService","onStartCommand - in");
+
+
+
         mGoogleApiClient.connect();
         return mStartMode;
     }
 
     @Override
-    public IBinder onBind(Intent intent)
-    {
+    public IBinder onBind(Intent intent) {
         // A client is binding to the service with bindService()
         Log.i("OnRouteLocationService","onBind - in");
         return mBinder;
     }
 
     @Override
-    public boolean onUnbind(Intent intent)
-    {
+    public boolean onUnbind(Intent intent) {
         // All clients have unbound with unbindService()
         Log.i("OnRouteLocationService","onUnbind - in");
         return mAllowRebind;
     }
+
     @Override
-    public void onRebind(Intent intent)
-    {
+    public void onRebind(Intent intent) {
         // A client is binding to the service with bindService(),
         // after onUnbind() has already been called
         Log.i("OnRouteLocationService","onRebind - in");
     }
     @Override
-    public void onDestroy()
-    {
+    public void onDestroy() {
         // The service is no longer used and is being destroyed
         Log.i("OnRouteLocationService","onDestroy - in");
         LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient,this);
@@ -113,25 +110,21 @@ public class OnRouteLocationService extends Service implements
     /* |  Non service methods, location services related */
     /* \/                                                */
     @Override
-    public void onConnected(Bundle bundle)
-    {
+    public void onConnected(Bundle bundle) {
         Log.i("OnRouteLocationService","onConnected - in");
         createLocationRequest();
         startLocationUpdates();
     }
 
-    protected void createLocationRequest()
-    {
+    protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(10000);
         mLocationRequest.setFastestInterval(5000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
-    protected void startLocationUpdates()
-    {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
-        {
+    protected void startLocationUpdates() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
             // here to request the missing permissions, and then overriding
@@ -146,20 +139,17 @@ public class OnRouteLocationService extends Service implements
     }
 
     @Override
-    public void onConnectionSuspended(int i)
-    {
+    public void onConnectionSuspended(int i) {
 
     }
 
     @Override
-    public void onConnectionFailed(ConnectionResult connectionResult)
-    {
+    public void onConnectionFailed(ConnectionResult connectionResult) {
 
     }
 
     @Override
-    public void onLocationChanged(Location location)
-    {
+    public void onLocationChanged(Location location) {
         // TODO: Implement SQLite database for handling all information and service locations
         // 1. Handle the destinations, routes, and etcs
         // 2. Saving the data generated in the service

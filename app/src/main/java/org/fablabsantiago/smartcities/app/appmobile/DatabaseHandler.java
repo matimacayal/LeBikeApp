@@ -134,7 +134,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
 
     /*------------------------------------------------------*/
     /*-------------------- Ruta(Puntos) --------------------*/
-    public void addRoutePoint(int seqnum, int tiempo, double latitude, double longitude) {
+    public void addTrackPoint(int seqnum, int tiempo, double latitude, double longitude) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
@@ -144,6 +144,11 @@ public class DatabaseHandler extends SQLiteOpenHelper
         values.put(TR_LONGITUDE, longitude);
 
         db.insert(RUTA_TABLE, null, values);
+    }
+
+    public void eraseTrackPoints() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("DELETE FROM "+ RUTA_TABLE);
     }
 
     /*------------------------------------------------------*/
@@ -169,29 +174,29 @@ public class DatabaseHandler extends SQLiteOpenHelper
 
     /*------------------------------------------------------*/
     /*------------------------ Rutas -----------------------*/
-    public void startRoute(Ruta ruta) {
+    public void startRoute(int id, int destId, String name, String hora, String fecha) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(TRS_ID       , ruta.getId());        // -
-        values.put(TRS_DESTID   , ruta.getDestId());    // -
-        values.put(TRS_NOMBRE   , ruta.getName());      // - , '-' => al comienzo
-        values.put(TRS_HORA     , ruta.getHora());      // -
-        values.put(TRS_FECHA    , ruta.getFecha());     // -
+        values.put(TRS_ID       , id);        // -
+        values.put(TRS_DESTID   , destId);    // -
+        values.put(TRS_NOMBRE   , name);      // - , '-' => al comienzo
+        values.put(TRS_HORA     , hora);      // -
+        values.put(TRS_FECHA    , fecha);     // -
 
         db.insert(RUTAS_TABLE, null, values);
     }
 
-    public void endRoute(Ruta ruta) {
+    public void endRoute(int rutaId, int numPos, int numNeg, int duracion, float distancia) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(TRS_NUMPOS   , ruta.getNumPos());    // * , '*' => al fin
-        values.put(TRS_NUMNEG   , ruta.getNumNeg());    // *
-        values.put(TRS_DURACION , ruta.getDuration());  // *
-        values.put(TRS_DISTANCIA, ruta.getDistancia()); // *
+        values.put(TRS_NUMPOS   , numPos);    // * , '*' => al fin
+        values.put(TRS_NUMNEG   , numNeg);    // *
+        values.put(TRS_DURACION , duracion);  // *
+        values.put(TRS_DISTANCIA, distancia); // *
 
-        db.update(RUTAS_TABLE, values, TRS_ID + " = " + Integer.toString(ruta.getId()), null);
+        db.update(RUTAS_TABLE, values, TRS_ID + " = " + Integer.toString(rutaId), null);
     }
 
     public void newRuta(Ruta ruta) {
@@ -268,7 +273,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
     public List<RoutePoint> getRoutePoints(int num) {
         SQLiteDatabase db = this.getReadableDatabase();
 
-        String query = "SELECT  * FROM " + RUTA_TABLE;
+        String query = "SELECT * FROM " + RUTA_TABLE + " ORDER BY " + TR_SEQNUM + " ASC";
 
         Cursor cursor = db.rawQuery(query, null);
 
@@ -417,6 +422,22 @@ public class DatabaseHandler extends SQLiteOpenHelper
         cursor.close();
 
         return rutas;
+    }
+
+    public int getLastId() {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String query = "SELECT MAX(" + TRS_ID + ") FROM " + RUTAS_TABLE;
+
+        Cursor cursor = db.rawQuery(query, null);
+
+        int biggestId = -1;
+        if(cursor.moveToFirst()) {
+            biggestId = cursor.getInt(0);
+        }
+        cursor.close();
+
+        return biggestId;
     }
 
     /*------------------------------------------------------*/
