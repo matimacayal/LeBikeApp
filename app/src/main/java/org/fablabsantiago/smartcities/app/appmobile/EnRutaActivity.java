@@ -322,7 +322,7 @@ public class EnRutaActivity extends AppCompatActivity implements
                         //                                          int[] grantResults)
                         // to handle the case where the user grants the permission. See the documentation
                         // for ActivityCompat#requestPermissions for more details.
-                        return;
+                        //return;
                     }
                     Location pointLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
                     BitmapDescriptor posNegIcon = (msg.contains("ii")) ?
@@ -549,7 +549,7 @@ public class EnRutaActivity extends AppCompatActivity implements
             //                                          int[] grantResults)
             // to handle the case where the user grants the permission. See the documentation
             // for ActivityCompat#requestPermissions for more details.
-            return;
+            //return;
         }
         mMap.setMyLocationEnabled(true);
 
@@ -676,7 +676,7 @@ public class EnRutaActivity extends AppCompatActivity implements
             // to handle the case where the user grants the permission. See the documentation
             // for ActivityCompat#requestPermissions for more details.
             Log.i("EnRutaActivity", "Location permissions (fine|coarse) not granted");
-            return false;
+            //return false;
         }
         //Check if location enabled       and notify
         LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
