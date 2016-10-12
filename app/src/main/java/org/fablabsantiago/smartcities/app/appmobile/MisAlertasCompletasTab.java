@@ -20,15 +20,13 @@ public class MisAlertasCompletasTab extends ListFragment
     List<Alerta> listaAlertas = new ArrayList<Alerta>();
 
     @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         baseDatos = new DatabaseHandler(getActivity());
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
-    {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.tab_misalertas_completas, container, false);
     }
 

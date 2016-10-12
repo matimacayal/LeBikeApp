@@ -90,7 +90,7 @@
                 android:value="org.fablabsantiago.smartcities.app.appmobile.LeBikeActivity"/>
         </activity>
 
-        <service android:name="org.fablabsantiago.smartcities.app.appmobile.OnRouteLocationService" />
+        <service android:name="org.fablabsantiago.smartcities.app.appmobile.EnRutaTrackingService" />
     </application>
 
 </manifest>

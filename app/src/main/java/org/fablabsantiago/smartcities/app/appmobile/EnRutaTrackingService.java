@@ -1,7 +1,6 @@
 package org.fablabsantiago.smartcities.app.appmobile;
 
 
-import android.*;
 import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -52,14 +51,14 @@ public class EnRutaTrackingService extends Service implements
 
     @Override
     public void onCreate() {
-        Log.i("OnRouteLocationService","onCreate - in");
+        Log.i("EnRutaTrackingService","onCreate - in");
 
         /*---------- Base Datos ----------*/
         baseDatos = new DatabaseHandler(this);
 
-        DateFormat date = new SimpleDateFormat("yyyyMMdd-HHmmss");
+        DateFormat date = new SimpleDateFormat("HHmmss:ddMMyyy");
         routeName = "origen_destino" + "_" + date.format(new Date()) + "_" + "n";
-        Log.i("OnRouteLocationService","onCreate: routeName=" + routeName + "(not used)");
+        Log.i("EnRutaTrackingService","onCreate: routeName=" + routeName + "(not used)");
 
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -75,14 +74,17 @@ public class EnRutaTrackingService extends Service implements
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         // The service is starting, due to a call to startService()
-        Log.i("OnRouteLocationService","onStartCommand - in");
+        Log.i("EnRutaTrackingService","onStartCommand - in");
 
         idDestino = intent.getIntExtra("destino_id", -1);
-        idRuta = baseDatos.getLastId() + 1;
-        Log.i("EnRutaTrackingService","idRuta: " + String.valueOf(idRuta));
+        idRuta = baseDatos.getLastRutasId() + 1;
+        Log.i("EnRutaTrackingService","idDestino: " + String.valueOf(idDestino) + ", idRuta: " + String.valueOf(idRuta));
+
+        DateFormat date = new SimpleDateFormat("dd/MM/yyyy");
+        DateFormat hour = new SimpleDateFormat("HH:mm:ss");
 
         //                                    nombre, hora, fecha
-        baseDatos.startRoute(idRuta, idDestino, "", "88:88", "88/88/8888");
+        baseDatos.startRoute(idRuta, idDestino, "generic_track", hour.format(new Date()), date.format(new Date()));
 
         mGoogleApiClient.connect();
         return mStartMode;
@@ -91,14 +93,14 @@ public class EnRutaTrackingService extends Service implements
     @Override
     public IBinder onBind(Intent intent) {
         // A client is binding to the service with bindService()
-        Log.i("OnRouteLocationService","onBind - in");
+        Log.i("EnRutaTrackingService","onBind - in");
         return mBinder;
     }
 
     @Override
     public boolean onUnbind(Intent intent) {
         // All clients have unbound with unbindService()
-        Log.i("OnRouteLocationService","onUnbind - in");
+        Log.i("EnRutaTrackingService","onUnbind - in");
         return mAllowRebind;
     }
 
@@ -106,13 +108,13 @@ public class EnRutaTrackingService extends Service implements
     public void onRebind(Intent intent) {
         // A client is binding to the service with bindService(),
         // after onUnbind() has already been called
-        Log.i("OnRouteLocationService","onRebind - in");
+        Log.i("EnRutaTrackingService","onRebind - in");
     }
 
     @Override
     public void onDestroy() {
         // The service is no longer used and is being destroyed
-        Log.i("OnRouteLocationService","onDestroy - in");
+        Log.i("EnRutaTrackingService","onDestroy - in");
         LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient,this);
         mGoogleApiClient.disconnect();
 
@@ -125,7 +127,7 @@ public class EnRutaTrackingService extends Service implements
     /* \/                                                */
     @Override
     public void onConnected(Bundle bundle) {
-        Log.i("OnRouteLocationService","onConnected - in");
+        Log.i("EnRutaTrackingService","onConnected - in");
         createLocationRequest();
         startLocationUpdates();
     }
@@ -164,12 +166,11 @@ public class EnRutaTrackingService extends Service implements
 
     @Override
     public void onLocationChanged(Location location) {
-        seqNum = seqNum + 1;
-
+        seqNum = baseDatos.getLastSeqNum() + 1;
         //                            tiempo
         baseDatos.addTrackPoint(seqNum, 0, location.getLatitude(), location.getLongitude());
 
-        Log.i("OnRouteLocationService","onLocationChanged, " + location.toString());
+        Log.i("EnRutaTrackingService","onLocationChanged, " + location.toString());
         Toast.makeText(this, location.toString(),Toast.LENGTH_SHORT).show();
 
         //TODO: implement broadcast for the EnRutaActivity to receive and plot track in real time

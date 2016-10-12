@@ -347,7 +347,7 @@ public class OnRouteMapActivity extends AppCompatActivity implements
                 .position(destino.latLng)
                 .title(destino.name)
                 .snippet("destino______")
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_stop)));
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker_stop)));
         mapMarkers.add(origenMarker);
         mapMarkers.add(destinoMarker);
         if(route1 != null && route2 != null)

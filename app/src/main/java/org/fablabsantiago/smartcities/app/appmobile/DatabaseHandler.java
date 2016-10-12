@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.location.Location;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -144,6 +145,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
         values.put(TR_LONGITUDE, longitude);
 
         db.insert(RUTA_TABLE, null, values);
+        db.close();
     }
 
     public void eraseTrackPoints() {
@@ -202,6 +204,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
     public void newRuta(Ruta ruta) {
         SQLiteDatabase db = this.getWritableDatabase();
 
+
         ContentValues values = new ContentValues();
         values.put(TRS_ID       , ruta.getId());        // -
         values.put(TRS_DESTID   , ruta.getDestId());    // -
@@ -214,6 +217,11 @@ public class DatabaseHandler extends SQLiteOpenHelper
         values.put(TRS_DISTANCIA, ruta.getDistancia()); // *
 
         db.insert(RUTAS_TABLE, null, values);
+    }
+
+    public boolean deleteRoute(int id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        return db.delete(RUTAS_TABLE, TRS_ID + " = " + Integer.toString(id), null) > 0;
     }
 
     /*------------------------------------------------------*/
@@ -270,20 +278,41 @@ public class DatabaseHandler extends SQLiteOpenHelper
 
     /*------------------------------------------------------*/
     /*-------------------- Ruta(Puntos) --------------------*/
-    public List<RoutePoint> getRoutePoints(int num) {
+    public List<Location> getRoutePoints() {
         SQLiteDatabase db = this.getReadableDatabase();
 
-        String query = "SELECT * FROM " + RUTA_TABLE + " ORDER BY " + TR_SEQNUM + " ASC";
+        String query = "SELECT " + TR_LATITUDE + ", " + TR_LONGITUDE + " FROM " + RUTA_TABLE;// + " ORDER BY " + TR_SEQNUM + " ASC";
 
         Cursor cursor = db.rawQuery(query, null);
 
-        List<RoutePoint> routePoints = new ArrayList<RoutePoint>();
+        List<Location> routePoints = new ArrayList<Location>();
         if (cursor.moveToFirst()) {
-            routePoints.add(new RoutePoint(cursor));
+            do {
+                Location loc = new Location("");
+                loc.setLatitude(cursor.getDouble(0));
+                loc.setLongitude(cursor.getDouble(1));
+                routePoints.add(loc);
+            } while(cursor.moveToNext());
         }
         cursor.close();
 
         return routePoints;
+    }
+
+    public int getLastSeqNum() {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String query = "SELECT MAX(" + TR_SEQNUM + ") FROM " + RUTA_TABLE;
+
+        Cursor cursor = db.rawQuery(query, null);
+
+        int biggestSeqNum = -1;
+        if(cursor.moveToFirst()) {
+            biggestSeqNum = cursor.getInt(0);
+        }
+        cursor.close();
+
+        return biggestSeqNum;
     }
 
     /*------------------------------------------------------*/
@@ -424,7 +453,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
         return rutas;
     }
 
-    public int getLastId() {
+    public int getLastRutasId() {
         SQLiteDatabase db = this.getReadableDatabase();
 
         String query = "SELECT MAX(" + TRS_ID + ") FROM " + RUTAS_TABLE;

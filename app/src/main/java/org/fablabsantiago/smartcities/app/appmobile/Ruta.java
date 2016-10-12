@@ -11,6 +11,8 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -93,19 +95,27 @@ public class Ruta {
     public List<LatLng> getTrack(Context context, int routeId) {
         List<LatLng> list = new ArrayList<LatLng>();
         try {
+            Log.i("Ruta", "getTrack: - in");
             String routeName = Integer.toString(routeId) + ".gpx";
-            InputStream inStream = context.getAssets().open(routeName);
+
+            File file = new File(context.getFilesDir(), routeName);
+            InputStream inStream = new FileInputStream(file);
+            Log.i("Ruta", "getTrack(): loaded file:"  + file.toString());
+
+
+            //InputStream inStream = context.getAssets().open(routeName);
             // TODO: Idioma
             // Asset: Dicese del sustantivo en íngles que en el español se refiere a un
             //       valor, activo, acciones, recurso, ventaja, herramienta.
             list = parseRoute(inStream);
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
+            Log.e("Ruta", "getTrack: - error");
         }
 
         return list;
     }
+
     protected List<LatLng> parseRoute(InputStream inputStream) {
         List<LatLng> routePoints = new ArrayList<LatLng>();
         try {
