@@ -2,6 +2,7 @@ package org.fablabsantiago.smartcities.app.appmobile;
 
 
 import android.database.Cursor;
+import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 
 import com.google.android.gms.maps.model.LatLng;
@@ -57,6 +58,20 @@ public class Alerta {
         version = _version;
         estado = _estado;
     }
+    public Alerta(Bundle bundle) {
+        id = bundle.getInt(ID_KEY);
+        posneg = bundle.getBoolean(POSNEG_KEY);
+        lat = bundle.getFloat(LAT_KEY);
+        lng = bundle.getFloat(LON_KEY);
+        tipoAlerta = bundle.getString(TA_KEY);
+        hora = bundle.getString(HORA_KEY);
+        fecha = bundle.getString(FECHA_KEY);
+        titulo = bundle.getString(TITULO_KEY);
+        description = bundle.getString(DESC_KEY);
+        idRuta = bundle.getInt(ID_RUTA_KEY);
+        version = bundle.getInt(VER_KEY);
+        estado = bundle.getString(EST_KEY);
+    }
 
     /* Method
      *
@@ -100,6 +115,60 @@ public class Alerta {
     public String getEstado() {
         return estado;
     }
+    public void setEstado(String estado_) {
+        estado = estado_;
+    }
+
+    public boolean isComplete() {
+        boolean com;
+        com = (id > 0) &
+                ((posneg == true) | (posneg == false)) &
+                (lat != null) &
+                (lng != null) &
+                (tipoAlerta != null) &
+                (hora != null) &
+                (fecha != null) &
+                (titulo != null) &
+                (description != null) &
+                (version > 0);
+        return com;
+    }
+
+    public Bundle toBundle() {
+        Bundle bundle = new Bundle();
+
+        bundle.putInt(ID_KEY, id);
+        bundle.putBoolean(POSNEG_KEY, posneg);
+        bundle.putFloat(LAT_KEY, lat);
+        bundle.putFloat(LON_KEY, lng);
+        bundle.putString(TA_KEY, tipoAlerta);
+        bundle.putString(HORA_KEY, hora);
+        bundle.putString(FECHA_KEY, fecha);
+        bundle.putString(TITULO_KEY, titulo);
+        bundle.putString(DESC_KEY, description);
+        bundle.putInt(ID_RUTA_KEY, idRuta);
+        bundle.putInt(VER_KEY, version);
+        bundle.putString(EST_KEY, estado);
+
+        return bundle;
+    }
 
 
+
+
+    /* Constants
+     *
+     */
+    String ID_KEY = "alerta_id";
+    String POSNEG_KEY = "alerta_posneg";
+    String LAT_KEY = "alerta_lat";
+    String LON_KEY = "alerta_lon";
+    String TA_KEY = "alerta_tipoAlerta";
+    String HORA_KEY = "alerta_hora";
+    String FECHA_KEY = "alerta_fecha";
+    String TITULO_KEY = "alerta_titulo";
+    String DESC_KEY = "alerta_desc";
+    String ID_RUTA_KEY = "alerta_idRuta";
+    String VER_KEY = "alerta_version";
+    String EST_KEY = "alerta_estado";
 }

@@ -1,15 +1,25 @@
 package org.fablabsantiago.smartcities.app.appmobile;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MisAlertasActivity extends AppCompatActivity// implements TabLayout.OnTabSelectedListener
+public class MisAlertasActivity extends AppCompatActivity implements
+        MisAlertasInterfaces.MisAlertasTabListener,
+        MisAlertasInterfaces.AlertaDialogListener
 {
     private TabLayout tabLayout;
     private ViewPager viewPager;
@@ -17,22 +27,38 @@ public class MisAlertasActivity extends AppCompatActivity// implements TabLayout
     DatabaseHandler baseDatos;
     List<Alerta> listaAlertas = new ArrayList<Alerta>();
 
+    FragmentManager fragmentManager;
+    AlertaEditDialog dialog;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_misalertas);
 
-        //Adding toolbar to the activity
+        // Adding toolbar to the activity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        //Initializing BaseDatos
+        // Initializing BaseDatos
         baseDatos = new DatabaseHandler(this);
         baseDatos.eraseAlertasTable();
+
+        // Catch new Alerta action
+        Intent intent = getIntent();
+        String action = intent.getAction();
+        if (action != null) {
+            if (action.equals("REQUESTING_NEW_ALERTA")) {
+                openAlertasEditDialog(
+                        null,
+                        (float) intent.getDoubleExtra("NEW_ALERTA_LATITUDE", 0),
+                        (float) intent.getDoubleExtra("NEW_ALERTA_LONGITUDE", 0));
+            }
+        }
 
         //Initializing the tablayout
         tabLayout = (TabLayout) findViewById(R.id.tabLayout);
@@ -44,20 +70,17 @@ public class MisAlertasActivity extends AppCompatActivity// implements TabLayout
         tabLayout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener()
         {
             @Override
-            public void onTabSelected(TabLayout.Tab tab)
-            {
+            public void onTabSelected(TabLayout.Tab tab) {
                 viewPager.setCurrentItem(tab.getPosition());
             }
 
             @Override
-            public void onTabUnselected(TabLayout.Tab tab)
-            {
+            public void onTabUnselected(TabLayout.Tab tab) {
 
             }
 
             @Override
-            public void onTabReselected(TabLayout.Tab tab)
-            {
+            public void onTabReselected(TabLayout.Tab tab) {
 
             }
         });
@@ -67,20 +90,17 @@ public class MisAlertasActivity extends AppCompatActivity// implements TabLayout
         viewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener()
         {
             @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels)
-            {
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
                 tabLayout.setScrollPosition(position, positionOffset, true);
             }
 
             @Override
-            public void onPageSelected(int position)
-            {
+            public void onPageSelected(int position) {
 
             }
 
             @Override
-            public void onPageScrollStateChanged(int state)
-            {
+            public void onPageScrollStateChanged(int state) {
 
             }
         });
@@ -164,7 +184,7 @@ public class MisAlertasActivity extends AppCompatActivity// implements TabLayout
         // TODO: Ahora cada fragment hace acceso a la base de datos y carga las alertas
         // correspondientes de manera independiente. El siguiente paso es hacer que la actividad
         // cargue la data de la BD y la entregue a los fragments que la desplegarán en listas.
-        MisAlertasPagerAdapter adapter = new MisAlertasPagerAdapter(getSupportFragmentManager());
+        MisAlertasPagerAdapter adapter = new MisAlertasPagerAdapter(this, getSupportFragmentManager());
         viewPager.setAdapter(adapter);
     }
 
@@ -172,5 +192,87 @@ public class MisAlertasActivity extends AppCompatActivity// implements TabLayout
     protected void onResume()
     {
         super.onResume();
+    }
+
+    /*                                /
+     *        MENUU_ITEMSS            /
+     *                               */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_misalertas, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.add_alerta_menuitem) {
+            Intent mapIntent = new Intent(this, EnRutaActivity.class);
+            mapIntent.setAction("NEW_ALERTA_ACTION");
+            startActivity(mapIntent);
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onAlertasListClick(Alerta alerta) {
+        openAlertasEditDialog(alerta, 0, 0);
+    }
+
+    public void openAlertasEditDialog(Alerta alerta, float lat, float lon) {
+        fragmentManager = getSupportFragmentManager();
+        dialog = new AlertaEditDialog();
+        Bundle newAlertaExtras = new Bundle();
+        if (alerta != null) {
+            newAlertaExtras = alerta.toBundle();
+            newAlertaExtras.putString("NEW_ALERTA_ACTION", "EDIT_ALERTA");
+        } else {
+            int lastAlertaId = baseDatos.getLastAlertaId();
+            newAlertaExtras.putString("NEW_ALERTA_ACTION","NEW_ALERTA_FROM_MAP");
+            newAlertaExtras.putInt("NEW_ALERTA_ID", lastAlertaId + 1);
+            newAlertaExtras.putFloat("NEW_ALERTA_LAT", lat);
+            newAlertaExtras.putFloat("NEW_ALERTA_LON", lon);
+        }
+
+        dialog.setArguments(newAlertaExtras);
+        dialog.setAlertasDialogListener(this);
+        dialog.show(fragmentManager, "edit_alerta_fragment");
+    }
+
+
+    @Override
+    public void onCloseClick() {
+        dialog.dismiss();
+    }
+
+    @Override
+    public void onMostrarMapa() {
+        Intent mapIntent = new Intent(this, EnRutaActivity.class);
+        mapIntent.setAction("SEE_ALERTA_ACTION");
+        startActivity(mapIntent);
+    }
+
+    @Override
+    public void onAgregarAlerta(Alerta alerta, String action) {
+        if (action.equals("UPDATE_ALERTA")) {
+            Toast.makeText(this, "updating alerta " + alerta.getTitulo(), Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "creating alerta" + alerta.getTitulo(), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onEliminarAlerta(int alertaId) {
+        if (alertaId > 0) {
+            baseDatos.deleteAlerta(alertaId);
+        }
+        dialog.dismiss();
     }
 }

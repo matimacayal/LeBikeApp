@@ -20,6 +20,8 @@ public class MisAlertasPendientesTab extends ListFragment
     DatabaseHandler baseDatos;
     List<Alerta> listaAlertas = new ArrayList<Alerta>();
 
+    private MisAlertasInterfaces.MisAlertasTabListener alertasPendientesTabListener;
+
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
@@ -46,14 +48,19 @@ public class MisAlertasPendientesTab extends ListFragment
         MisAlertasAdapter alertasAdapter = new MisAlertasAdapter(getActivity(), listaAlertas);
         setListAdapter(alertasAdapter);
 
-        ListView list = getListView();
+        final ListView list = getListView();
         list.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id)
             {
-                Toast.makeText(getActivity(), "aewgeee", Toast.LENGTH_SHORT).show();
+                alertasPendientesTabListener.onAlertasListClick((Alerta) list.getItemAtPosition(position));
+                //Toast.makeText(getActivity(), "aewgeee", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    public void setAlertasPendientesTabListener(MisAlertasInterfaces.MisAlertasTabListener alertasPendientesTabListener) {
+        this.alertasPendientesTabListener = alertasPendientesTabListener;
     }
 }

@@ -91,6 +91,7 @@ public class EnRutaActivity extends AppCompatActivity implements
 {
     private Context context;
     DatabaseHandler baseDatos;
+    String intentAction;
     Destino destino;
     int destinationId;
 
@@ -107,6 +108,7 @@ public class EnRutaActivity extends AppCompatActivity implements
     private CameraPosition mapCameraPosition;
 
     private Marker addAlertaMarker;
+    private Snackbar addAlertaSnackbar;
 
     private BluetoothAdapter mBluetoothAdapter;
     boolean bluetoothIsEnabled;
@@ -131,6 +133,8 @@ public class EnRutaActivity extends AppCompatActivity implements
 
         Intent intent = getIntent();
         destinationId = intent.getIntExtra("DESTINO_ID", 0);
+        intentAction = intent.getAction();
+        if (intentAction == null) {intentAction = "";}
         Log.i("EnRutaACtivity", "id destino: " + Integer.toString(destinationId));
 
         /*---------- Mapa ----------*/
@@ -153,7 +157,7 @@ public class EnRutaActivity extends AppCompatActivity implements
         addAlertaMarker = null;
 
         /*---------- Tracking ----------*/
-        auxiliarBottomFragment = (EnRutaAuxiliaryBottomBar) getSupportFragmentManager().findFragmentById(R.id.bottomEnRutaFragment);;
+        auxiliarBottomFragment = (EnRutaAuxiliaryBottomBar) getSupportFragmentManager().findFragmentById(R.id.bottomEnRutaFragment);
         auxiliarBottomFragment.setBottomBarListener(this);
     }
 
@@ -400,6 +404,19 @@ public class EnRutaActivity extends AppCompatActivity implements
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker_stop)));
         }
 
+        if (intentAction.equals("NEW_ALERTA_ACTION")) {
+            LinearLayout container = (LinearLayout) findViewById(R.id.enRutaLinearLayoutContainer);
+            Snackbar.make(container, "Long press to place new alerta", Snackbar.LENGTH_INDEFINITE)
+                    .setAction("OK", new View.OnClickListener()
+                    {
+                        @Override
+                        public void onClick(View v) {
+
+                        }
+                    })
+                    .show();
+        }
+
         /*--------------- Posicionamiento de Alertas ---------------*/
         /*----------------------------------------------------------*/
         for (Alerta alerta : alertas) {
@@ -439,7 +456,10 @@ public class EnRutaActivity extends AppCompatActivity implements
                 }
                 addAlertaMarker = mMap.addMarker(new MarkerOptions()
                         .position(latLng)
-                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_add_location_grey)));
+                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_new_alerta_grey)));
+                LinearLayout container = (LinearLayout) findViewById(R.id.enRutaLinearLayoutContainer);
+                addAlertaSnackbar = Snackbar.make(container, "Presionar para agregar alerta", Snackbar.LENGTH_INDEFINITE);
+                addAlertaSnackbar.show();
             }
         });
 
@@ -451,12 +471,22 @@ public class EnRutaActivity extends AppCompatActivity implements
                 if (marker.equals(addAlertaMarker)) {
                     Log.i("EnRutaActivity", "onMarkerClick - on addAlertaMarker");
                     Intent addAlertaIntent = new Intent(context, MisAlertasActivity.class);
-                    addAlertaIntent.setAction("NEW_ALERTA_FROM_MAP");
+                    addAlertaIntent.setAction("REQUESTING_NEW_ALERTA");
                     addAlertaIntent.putExtra("NEW_ALERTA_LATITUDE", marker.getPosition().latitude);
                     addAlertaIntent.putExtra("NEW_ALERTA_LONGITUDE", marker.getPosition().longitude);
                     startActivity(addAlertaIntent);
                 }
                 return false;
+            }
+        });
+
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener()
+        {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                if (addAlertaMarker != null) {
+                    addAlertaMarker.remove();
+                }
             }
         });
     }

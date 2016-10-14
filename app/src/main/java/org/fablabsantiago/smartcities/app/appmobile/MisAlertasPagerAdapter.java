@@ -1,5 +1,6 @@
 package org.fablabsantiago.smartcities.app.appmobile;
 
+import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -13,23 +14,28 @@ public class MisAlertasPagerAdapter extends FragmentPagerAdapter
 //    It destroys fragments as the user navigates to other pages, minimizing memory usage.
 
     private static int NUM_ITEMS = 3;
+    private MisAlertasInterfaces.MisAlertasTabListener misAlertasTabListener;
 
-    public MisAlertasPagerAdapter(FragmentManager fm)
-    {
+    public MisAlertasPagerAdapter(MisAlertasInterfaces.MisAlertasTabListener alertasTabListener, FragmentManager fm) {
         super(fm);
+        misAlertasTabListener = alertasTabListener;
     }
 
     @Override
-    public Fragment getItem(int position)
-    {
-        switch (position)
-        {
+    public Fragment getItem(int position) {
+        switch (position) {
             case 0:
-                return new MisAlertasCompletasTab();
+                MisAlertasCompletasTab misAlertasCompletasTab = new MisAlertasCompletasTab();
+                misAlertasCompletasTab.setAlertasCompletasTabListener(misAlertasTabListener);
+                return misAlertasCompletasTab;
             case 1:
-                return new MisAlertasPendientesTab();
+                MisAlertasPendientesTab misAlertasPendientesTab = new MisAlertasPendientesTab();
+                misAlertasPendientesTab.setAlertasPendientesTabListener(misAlertasTabListener);
+                return misAlertasPendientesTab;
             case 2:
-                return new MisAlertasTodasTab();
+                MisAlertasTodasTab misAlertasTodasTab = new MisAlertasTodasTab();
+                misAlertasTodasTab.setAlertasTodasTabListener(misAlertasTabListener);
+                return misAlertasTodasTab;
             default:
                 return null;
         }
@@ -42,8 +48,7 @@ public class MisAlertasPagerAdapter extends FragmentPagerAdapter
     //}
 
     @Override
-    public int getCount()
-    {
+    public int getCount() {
         return NUM_ITEMS;
     }
 }

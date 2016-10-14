@@ -120,6 +120,7 @@ public class LeBikeActivity extends AppCompatActivity
     public void misAlertas(View view) {
         Log.i("LeBikeActivity","onMisAlertas entered");
         Intent misAlertasIntent = new Intent(this, MisAlertasActivity.class);
+        misAlertasIntent.setAction("DEFAULT");
         startActivity(misAlertasIntent);
     }
 

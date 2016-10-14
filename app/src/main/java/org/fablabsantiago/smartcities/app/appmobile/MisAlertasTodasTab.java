@@ -19,16 +19,16 @@ public class MisAlertasTodasTab extends ListFragment
     DatabaseHandler baseDatos;
     List<Alerta> listaAlertas = new ArrayList<Alerta>();
 
+    private MisAlertasInterfaces.MisAlertasTabListener alertasTodasTabListener;
+
     @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         baseDatos = new DatabaseHandler(getActivity());
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
-    {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return inflater.inflate(R.layout.tab_misalertas_todas, container, false);
     }
 
@@ -44,14 +44,20 @@ public class MisAlertasTodasTab extends ListFragment
         MisAlertasAdapter alertasAdapter = new MisAlertasAdapter(getActivity(), listaAlertas);
         setListAdapter(alertasAdapter);
 
-        ListView list = getListView();
+        final ListView list = getListView();
         list.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id)
             {
-                Toast.makeText(getActivity(), "bluxe", Toast.LENGTH_SHORT).show();
+                alertasTodasTabListener.onAlertasListClick((Alerta) list.getItemAtPosition(position));
+                //Toast.makeText(getActivity(), "bluxe", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+
+    public void setAlertasTodasTabListener(MisAlertasInterfaces.MisAlertasTabListener alertasTodasTabListener) {
+        this.alertasTodasTabListener = alertasTodasTabListener;
     }
 }

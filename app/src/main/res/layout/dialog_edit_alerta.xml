@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+
+    <!-- Edicion de Alerta -->
+    <LinearLayout
+        android:id="@+id/edit_destination_subwindow"
+        android:layout_width="325dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_gravity="center_horizontal"
+        android:padding="12dp"
+        android:background="#faf8f6"
+        android:elevation="16dp">
+        <!-- Hora - Tipo Alerta - cerrar-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <!-- Fecha y Hora -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="25"
+                android:orientation="vertical">
+                <TextView
+                    android:id="@+id/edit_alerta_dialog_fecha"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="22/22/22"
+                    android:textSize="12sp"
+                    android:textColor="#000000"/>
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="3dp"/>
+                <TextView
+                    android:id="@+id/edit_alerta_dialog_hora"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="22:22"
+                    android:textSize="12sp"
+                    android:textColor="#000000"/>
+            </LinearLayout>
+            <View
+                android:layout_width="10dp"
+                android:layout_height="0dp"/>
+            <!-- Tipo de Alerta -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="75"
+                android:orientation="vertical">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tipo Alerta"
+                    android:textSize="12sp"
+                    android:textColor="#000000"/>
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="8dp"/>
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <ImageView
+                        android:id="@+id/edit_alerta_dialog_alerta_positiva"
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:src="@drawable/marker_positive"
+                        android:alpha="0.4"/>
+                    <View
+                        android:layout_width="6dp"
+                        android:layout_height="0dp"/>
+                    <ImageView
+                        android:id="@+id/edit_alerta_dialog_alerta_negativa"
+                        android:layout_width="22dp"
+                        android:layout_height="22dp"
+                        android:src="@drawable/marker_negative"
+                        android:alpha="0.4"/>
+                </LinearLayout>
+
+            </LinearLayout>
+            <!-- Cruz cerrar -->
+            <Button
+                android:id="@+id/edit_alerta_dialog_close_button"
+                android:layout_width="20dp"
+                android:layout_height="20dp"
+                android:layout_marginTop="-5dp"
+                android:layout_gravity="right"
+                android:background="@drawable/ic_cruz"
+                android:layout_marginRight="-5dp"/>
+        </LinearLayout>
+
+        <!-- Título -->
+        <EditText
+            android:id="@+id/edit_alerta_dialog_titulo"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:textSize="11sp"
+            android:hint="Título"
+            android:gravity="bottom"/>
+
+        <!-- Descripción -->
+        <EditText
+            android:id="@+id/edit_alerta_dialog_descripcion"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:textSize="11sp"
+            android:hint="Cuéntanos un poco"
+            android:gravity="bottom"/>
+        <View
+            android:layout_width="0dp"
+            android:layout_height="15dp"/>
+
+        <!-- Tipo de Alerta -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="2"/>
+            <ImageView
+                android:id="@+id/edit_alerta_dialog_ciclovias"
+                android:background="#00000000"
+                android:src="@drawable/ic_ciclovias_grey"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:alpha="0.4"/>
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"/>
+            <ImageView
+                android:id="@+id/edit_alerta_dialog_vias"
+                android:background="#00000000"
+                android:src="@drawable/ic_viabilidad_grey"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:alpha="0.4"/>
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"/>
+            <ImageView
+                android:id="@+id/edit_alerta_dialog_espacios"
+                android:background="#00000000"
+                android:src="@drawable/ic_espacios_grey"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:alpha="0.4"/>
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"/>
+            <ImageView
+                android:id="@+id/edit_alerta_dialog_mantencion"
+                android:background="#00000000"
+                android:src="@drawable/ic_mantenimiento_grey"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:alpha="0.4"/>
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"/>
+            <ImageView
+                android:id="@+id/edit_alerta_dialog_automoviles"
+                android:background="#00000000"
+                android:src="@drawable/ic_automoviles_grey"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:alpha="0.4"/>
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"/>
+            <ImageView
+                android:id="@+id/edit_alerta_dialog_otros"
+                android:background="#00000000"
+                android:src="@drawable/ic_otros_grey"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:alpha="0.4"/>
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"/>
+            <ImageView
+                android:id="@+id/edit_alerta_dialog_peaton"
+                android:background="#00000000"
+                android:src="@drawable/ic_peaton_grey"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:alpha="0.4"/>
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="2"/>
+        </LinearLayout>
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="16dp"/>
+
+        <!-- Mapa - Camara - Agregar - Eliminar -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <!-- Mostrar en mapa -->
+            <LinearLayout
+                android:id="@+id/edit_alerta_dialog_mostrar_napa"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <ImageView
+                    android:layout_width="13dp"
+                    android:layout_height="13dp"
+                    android:layout_gravity="center"
+                    android:src="@drawable/ic_gps_fixed_black_48dp"/>
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="0dp"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:textColor="#000000"
+                    android:textSize="12sp"
+                    android:text="Mostrar en mapa"/>
+            </LinearLayout>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"/>
+
+            <!-- Camara -->
+            <ImageView
+                android:id="@+id/edit_alerta_dialog_camera"
+                android:layout_width="17dp"
+                android:layout_height="17dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_photo_camera_black_48dp"
+                android:adjustViewBounds="false"/>
+            <View
+                android:layout_width="15dp"
+                android:layout_height="0dp"/>
+
+            <!-- Agregar -->
+            <TextView
+                android:id="@+id/edit_alerta_dialog_agregar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:textColor="#000000"
+                android:textSize="11sp"
+                android:text="GUARDAR"/>
+            <View
+                android:layout_width="15dp"
+                android:layout_height="0dp"/>
+
+            <!-- Eliminar -->
+            <TextView
+                android:id="@+id/edit_alerta_dialog_eliminar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:textColor="#000000"
+                android:textSize="11sp"
+                android:text="ELIMINAR"
+                />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</FrameLayout>

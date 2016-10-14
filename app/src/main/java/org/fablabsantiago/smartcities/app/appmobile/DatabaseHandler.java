@@ -267,9 +267,9 @@ public class DatabaseHandler extends SQLiteOpenHelper
         db.update(ALERTAS_TABLE, values, TA_ID + " = " + Integer.toString(alerta.getId()), null);
     }
 
-    public boolean deleteAlerta(Alerta alerta) {
+    public boolean deleteAlerta(int id) {
         SQLiteDatabase db = this.getWritableDatabase();
-        return db.delete(ALERTAS_TABLE, TA_ID + " = " + Integer.toString(alerta.getId()), null) > 0;
+        return db.delete(ALERTAS_TABLE, TA_ID + " = " + Integer.toString(id), null) > 0;
     }
 
     /*----------------------------------------------------------------------------------------------------*/
@@ -524,6 +524,22 @@ public class DatabaseHandler extends SQLiteOpenHelper
         cursor.close();
 
         return alertas;
+    }
+
+    public int getLastAlertaId() {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String query = "SELECT MAX(" + TA_ID + ") FROM " + ALERTAS_TABLE;
+
+        Cursor cursor = db.rawQuery(query, null);
+
+        int biggestAlertaId = -1;
+        if(cursor.moveToFirst()) {
+            biggestAlertaId = cursor.getInt(0);
+        }
+        cursor.close();
+
+        return biggestAlertaId;
     }
 
     public void eraseAlertasTable() {

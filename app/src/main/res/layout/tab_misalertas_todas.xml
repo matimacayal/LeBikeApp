@@ -6,12 +6,12 @@
     android:layout_height="match_parent">
 
     <!--  Screen Design for Sport tab -->
-    <TextView android:text="TODAS MIS ALERTAS"
+    <!--<TextView android:text="TODAS MIS ALERTAS"
               android:padding="15dip"
               android:textSize="18dip"
               android:layout_width="fill_parent"
               android:layout_height="wrap_content"/>
-
+    -->
     <ListView
         android:id="@+id/android:list"
         android:paddingRight="10dp"
