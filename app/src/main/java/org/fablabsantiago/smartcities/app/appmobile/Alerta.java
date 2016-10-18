@@ -14,9 +14,9 @@ public class Alerta {
      *
      */
     private int     id;
-    private boolean posneg;        // positivo o negativo (1 | 0)
-    private Float   lat;           // posición
-    private Float   lng;           // ""
+    private Boolean posneg;        // positivo o negativo (1 | 0)
+    private double   lat;          // posición
+    private double   lng;          // ""
     private String  tipoAlerta;    // cicl(ovía), vias, vege(tación), mant(ención), auto(s), peat(ones) y otro(s)
     private String  hora;
     private String  fecha;
@@ -32,8 +32,8 @@ public class Alerta {
     public Alerta(Cursor cursor) {
         id = cursor.getInt(0);
         posneg = (cursor.getInt(1) > 0);
-        lat = (float) cursor.getDouble(2);
-        lng = (float) cursor.getDouble(3);
+        lat = cursor.getDouble(2);
+        lng = cursor.getDouble(3);
         tipoAlerta = cursor.getString(4);
         hora = cursor.getString(5);
         fecha = cursor.getString(6);
@@ -42,8 +42,9 @@ public class Alerta {
         idRuta = cursor.getInt(9);
         version = cursor.getInt(10);
         estado = cursor.getString(11);
+
     }
-    public Alerta(int _id, boolean pn, float _lat, float _lng, String _tA, String _hora, String _fecha,
+    public Alerta(int _id, boolean pn, double _lat, double _lng, String _tA, String _hora, String _fecha,
                   String _titulo, String _desc, int _idRuta, int _version, String _estado) {
         id = _id;
         posneg = pn;
@@ -61,8 +62,8 @@ public class Alerta {
     public Alerta(Bundle bundle) {
         id = bundle.getInt(ID_KEY);
         posneg = bundle.getBoolean(POSNEG_KEY);
-        lat = bundle.getFloat(LAT_KEY);
-        lng = bundle.getFloat(LON_KEY);
+        lat = bundle.getDouble(LAT_KEY);
+        lng = bundle.getDouble(LON_KEY);
         tipoAlerta = bundle.getString(TA_KEY);
         hora = bundle.getString(HORA_KEY);
         fecha = bundle.getString(FECHA_KEY);
@@ -82,10 +83,10 @@ public class Alerta {
     public boolean getPosNeg() {
         return posneg;
     }
-    public Float getLat() {
+    public double getLat() {
         return lat;
     }
-    public Float getLng() {
+    public double getLng() {
         return lng;
     }
     public LatLng getLatLng() {
@@ -119,19 +120,19 @@ public class Alerta {
         estado = estado_;
     }
 
-    public boolean isComplete() {
+    public String isComplete() {
         boolean com;
         com = (id > 0) &
-                ((posneg == true) | (posneg == false)) &
-                (lat != null) &
-                (lng != null) &
+                (posneg != null) &
+                (lat > 0) &
+                (lng > 0) &
                 (tipoAlerta != null) &
                 (hora != null) &
                 (fecha != null) &
                 (titulo != null) &
                 (description != null) &
                 (version > 0);
-        return com;
+        return ((com) ? "completa" : "pendiente");
     }
 
     public Bundle toBundle() {
@@ -139,8 +140,8 @@ public class Alerta {
 
         bundle.putInt(ID_KEY, id);
         bundle.putBoolean(POSNEG_KEY, posneg);
-        bundle.putFloat(LAT_KEY, lat);
-        bundle.putFloat(LON_KEY, lng);
+        bundle.putDouble(LAT_KEY, lat);
+        bundle.putDouble(LON_KEY, lng);
         bundle.putString(TA_KEY, tipoAlerta);
         bundle.putString(HORA_KEY, hora);
         bundle.putString(FECHA_KEY, fecha);

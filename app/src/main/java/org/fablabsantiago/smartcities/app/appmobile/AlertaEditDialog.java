@@ -117,20 +117,13 @@ public class AlertaEditDialog extends DialogFragment
             titulo.setText(alerta.getTitulo());
             descripcion.setText(alerta.getDescrption());
             switch (alerta.getTipoAlerta()) {
-                case "cicl": ciclovia.setAlpha((float) 1.0);
-                             break;
-                case "vias": vias.setAlpha((float) 1.0);
-                             break;
-                case "vege": espacios.setAlpha((float) 1.0);
-                             break;
-                case "mant": mantencion.setAlpha((float) 1.0);
-                             break;
-                case "auto": automoviles.setAlpha((float) 1.0);
-                             break;
-                case "peat": peaton.setAlpha((float) 1.0);
-                             break;
-                case "otro": otros.setAlpha((float) 1.0);
-                             break;
+                case "cicl": ciclovia.setAlpha((float) 1.0);    break;
+                case "vias": vias.setAlpha((float) 1.0);        break;
+                case "vege": espacios.setAlpha((float) 1.0);    break;
+                case "mant": mantencion.setAlpha((float) 1.0);  break;
+                case "auto": automoviles.setAlpha((float) 1.0); break;
+                case "peat": peaton.setAlpha((float) 1.0);      break;
+                case "otro": otros.setAlpha((float) 1.0);       break;
                 default:
                     break;
             }
@@ -213,12 +206,10 @@ public class AlertaEditDialog extends DialogFragment
         {
             @Override
             public void onClick(View v) {
-                String fecha2 = fecha.getText().toString();
                 String hora2 = hora.getText().toString();
-                boolean posneg = (positiva.getAlpha() == (float) 1.0);
+                String fecha2 = fecha.getText().toString();
                 String titulo2 = titulo.getText().toString();
                 String descripcion2 = descripcion.getText().toString();
-
                 String tipo2 = "";
                 ImageView tipoSelec;
                 for (ImageView tipo : tiposAlerta) {
@@ -248,45 +239,44 @@ public class AlertaEditDialog extends DialogFragment
                         }
                     }
                 }
-
+                Boolean posneg2 = (positiva.getAlpha() == (float) 1.0);
 
                 String action;
-                Alerta newAlerta;
+                int id2;
+                double lat2;
+                double lon2;
+                int idRuta2;
+                int ver2;
                 if (alerta != null) {
-                    newAlerta = new Alerta(
-                            alerta.getId(),
-                            posneg,
-                            (float) alerta.getLatLng().latitude,
-                            (float) alerta.getLatLng().longitude,
-                            tipo2,
-                            hora2,
-                            fecha2,
-                            titulo2,
-                            descripcion2,
-                            -1,
-                            alerta.getVersion() + 1,
-                            "pendiente"
-                            );
-                    newAlerta.setEstado((newAlerta.isComplete()) ? "completa":"pendiente");
+                    id2 = alerta.getId();
+                    lat2 = alerta.getLat();
+                    lon2 = alerta.getLng();
+                    idRuta2 = alerta.getIdRuta();
+                    ver2 = alerta.getVersion() + 1;
                     action = "UPDATE_ALERTA";
                 } else {
-                    newAlerta = new Alerta(
-                            alertaInfo.getInt("NEW_ALERTA_ID"),
-                            posneg,
-                            alertaInfo.getFloat("NEW_ALERTA_LAT"),
-                            alertaInfo.getFloat("NEW_ALERTA_LON"),
-                            tipo2,
-                            hora2,
-                            fecha2,
-                            titulo2,
-                            descripcion2,
-                            -1,
-                            1,
-                            "pendiente"
-                    );
-                    newAlerta.setEstado((newAlerta.isComplete()) ? "completa" : "pendiente");
+                    id2 = alertaInfo.getInt("NEW_ALERTA_ID");
+                    lat2 = alertaInfo.getDouble("NEW_ALERTA_LAT");
+                    lon2 = alertaInfo.getDouble("NEW_ALERTA_LON");
+                    idRuta2 = alertaInfo.getInt("NEW_ALERTA_IDRUTA");
+                    ver2 = 1;
                     action = "NEW_ALERTA";
                 }
+
+                Alerta newAlerta = new Alerta(
+                        id2,
+                        posneg2,
+                        lat2,
+                        lon2,
+                        tipo2,
+                        hora2,
+                        fecha2,
+                        titulo2,
+                        descripcion2,
+                        idRuta2,
+                        ver2,
+                        "");
+                newAlerta.setEstado(newAlerta.isComplete());
 
                 alertaDialogListener.onAgregarAlerta(newAlerta, action);
             }

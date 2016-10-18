@@ -60,8 +60,8 @@ public class DestinoEditDialog extends DialogFragment
             nombre.setText(destinoInfo.getString("name"));
             direccion.setText(destinoInfo.getString("direction"));
             destinoId = destinoInfo.getInt("id");
-            latitude.setText(String.valueOf(destinoInfo.getFloat("latitude")));
-            longitude.setText(String.valueOf(destinoInfo.getFloat("longitude")));
+            latitude.setText(String.valueOf(destinoInfo.getDouble("latitude")));
+            longitude.setText(String.valueOf(destinoInfo.getDouble("longitude")));
         } else {
             destinoId = -1;
         }

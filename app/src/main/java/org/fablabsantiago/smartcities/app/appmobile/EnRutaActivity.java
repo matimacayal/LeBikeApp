@@ -153,6 +153,7 @@ public class EnRutaActivity extends AppCompatActivity implements
 
         mCurrentLocation = null;
         destinoLatLng = null;
+        defaultLatLng = new LatLng(-33.432531, -70.653368);
 
         addAlertaMarker = null;
 
@@ -305,7 +306,7 @@ public class EnRutaActivity extends AppCompatActivity implements
         /*---------- Mapa ----------*/
         isLocationAvailableAndStoreIt();
         if (destino != null) {
-            destinoLatLng = new LatLng((double) destino.getLatitude(), (double) destino.getLongitude());
+            destinoLatLng = new LatLng(destino.getLatitude(), destino.getLongitude());
         }
         //mCurrentLocation = new Location("");
         //mCurrentLocation.setLatitude(-33.449455);
@@ -419,7 +420,9 @@ public class EnRutaActivity extends AppCompatActivity implements
 
         /*--------------- Posicionamiento de Alertas ---------------*/
         /*----------------------------------------------------------*/
+        Log.i("EnRutaActivity","dibujando " + alertas.size() + " alertas");
         for (Alerta alerta : alertas) {
+            Log.i("EnRutaActivity", "alerta: " + alerta.getTitulo() + ", id:" + alerta.getId());
             BitmapDescriptor posNegIcon = (alerta.getPosNeg()) ?
                     BitmapDescriptorFactory.fromResource(R.drawable.marker_positive)
                     : BitmapDescriptorFactory.fromResource(R.drawable.marker_negative);
@@ -433,6 +436,7 @@ public class EnRutaActivity extends AppCompatActivity implements
             mapAlertas.add(point);
             angelaMerkel.put(point, alerta);
         }
+        Log.i("EnRutaActivity", "last alerta id: " + baseDatos.getLastAlertaId());
 
         /*--------------- Dibujo de rutas a destino ----------------*/
         /*----------------------------------------------------------*/
@@ -444,6 +448,7 @@ public class EnRutaActivity extends AppCompatActivity implements
                     .addAll(ruta.getTrack(this, ruta.getId()))
             );
         }
+        Log.i("EnRutaACtivity","las ruta id: " + baseDatos.getLastRutasId());
 
         /*---------------- Agregar nuevas alertas ------------------*/
         /*----------------------------------------------------------*/

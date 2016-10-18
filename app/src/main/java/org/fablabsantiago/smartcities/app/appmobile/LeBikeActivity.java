@@ -42,12 +42,13 @@ public class LeBikeActivity extends AppCompatActivity
 
             if (listaDestinos.isEmpty()) {
                 Log.i("LeBikeActivity","isEmpty 2");
-                baseDatos.newDestiny(new Destino("Casa", "Augusto Leguía Norte 280, Las Condes", 1044, (float)-33.412900, (float)-70.597636));
-                baseDatos.newDestiny(new Destino("Beauchef 850", "Vosco do Gomo 4840, Los Condos", 1045, (float) -33.457892, (float )-70.663839));
-                baseDatos.newDestiny(new Destino("Estacion Mapocho", "Vesce de Geme 4840, Les Cendes", 1046, (float)-33.432577, (float)-70.653212));
+                baseDatos.newDestiny(new Destino("Casa", "Augusto Leguía Norte 280, Las Condes", 1044, -33.412900, -70.597636));
+                baseDatos.newDestiny(new Destino("Beauchef 850", "Vosco do Gomo 4840, Los Condos", 1045, -33.457892, -70.663839));
+                baseDatos.newDestiny(new Destino("Estacion Mapocho", "Vesce de Geme 4840, Les Cendes", 1046, -33.432577, -70.653212));
                 listaDestinos = baseDatos.getDestinations();
             }
         }
+        Log.i("LeBikeActivity", "id ultima alerta BD: " + baseDatos.getLastAlertaId());
     }
 
     @Override

@@ -12,8 +12,8 @@ public class Destino
     private String nombre;
     private String direccion;
     private int id;
-    private Float lat;
-    private Float lon;
+    private Double lat;
+    private Double lon;
 
     /* Constructors
 	 *
@@ -21,7 +21,7 @@ public class Destino
     public Destino(String nom, String dir, int iDe) {
         new Destino(nom, dir, iDe, null, null);
     }
-    public Destino(String nom, String dir, int iDe, Float la, Float lo) {
+    public Destino(String nom, String dir, int iDe, Double la, Double lo) {
         nombre    = nom;
         direccion = dir;
         id        = iDe;
@@ -33,8 +33,8 @@ public class Destino
             nombre    = cursor.getString(0);
             direccion = cursor.getString(1);
             id        = cursor.getInt(2);
-            lat       = (float) cursor.getDouble(3);
-            lon       = (float) cursor.getDouble(4);
+            lat       = cursor.getDouble(3);
+            lon       = cursor.getDouble(4);
         } catch(Exception e) {
             Log.e("MainActivity", "sqlite destination cursor pase error: " + e.toString());
             throw e;
@@ -55,10 +55,10 @@ public class Destino
     {
         return id;
     }
-    public float getLatitude() {
+    public Double getLatitude() {
         return lat;
     }
-    public float getLongitude() {
+    public Double getLongitude() {
         return lon;
     }
 }

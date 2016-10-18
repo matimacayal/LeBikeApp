@@ -83,8 +83,8 @@ public class MisDestinosActivity extends AppCompatActivity implements DialogList
                 bundle.putString("name", destinoClicked.getName());
                 bundle.putString("direction", destinoClicked.getDirection());
                 bundle.putInt("id", destinoClicked.getId());
-                bundle.putFloat("latitude", destinoClicked.getLatitude());
-                bundle.putFloat("longitude", destinoClicked.getLongitude());
+                bundle.putDouble("latitude", destinoClicked.getLatitude());
+                bundle.putDouble("longitude", destinoClicked.getLongitude());
 
                 editDestino(bundle);
             }
@@ -149,11 +149,13 @@ public class MisDestinosActivity extends AppCompatActivity implements DialogList
     public void onGuardarClick(String nombre, String direccion, int ide, Double lat, Double lon) {
         Log.i("MisDestinosActivity","'guardar' pressed, nombre:" + nombre + ", direccion:" + direccion + ", lat:" + Double.toString(lat) + ", lon:" + Double.toString(lon));
         if (ide > 0) {
-            //updating old destino
             Log.i("MisDestinosActivity", "updating old destino");
+            baseDatos.updateDestino(nombre, direccion, ide, lat, lon);
         } else {
-            //creating new destino
-            Log.i("MisDestinosActivity", "creating new destino");
+            int idd = baseDatos.getLastDestinationId() + 1;
+            baseDatos.newDestiny(new Destino(nombre, direccion, idd, lat, lon));
+
+            Log.i("MisDestinosActivity", "creating new destino id: " + idd);
         }
         dialog.dismiss();
         //TODO: terminar de implementar esto.

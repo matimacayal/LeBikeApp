@@ -169,6 +169,18 @@ public class DatabaseHandler extends SQLiteOpenHelper
         db.close();
     }
 
+    public void updateDestino(String nombre, String direccion, int id, Double lat, Double lon) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(TD_NOMBRE   , nombre);
+        values.put(TD_DIRECCION, direccion);
+        values.put(TD_LATITUDE , lat);
+        values.put(TD_LONGITUDE, lon);
+
+        db.update(DESTINOS_TABLE, values, TD_ID + " = " + Integer.toString(id), null);
+    }
+
     public boolean deleteDestino(int id) {
         SQLiteDatabase db = this.getWritableDatabase();
         return db.delete(DESTINOS_TABLE, TD_ID + " = " + Integer.toString(id), null) > 0;
@@ -227,21 +239,20 @@ public class DatabaseHandler extends SQLiteOpenHelper
     /*------------------------------------------------------*/
     /*----------------------- Alertas ----------------------*/
     public void newAlerta(Alerta alerta) {
-        int firstVertion = 1;
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
         values.put(TA_ID         , alerta.getId());
-        values.put(TA_POSNEG     , (alerta.getPosNeg()) ? (int)1:(int)0);
-        values.put(TA_LATITUDE   , (double) alerta.getLat());
-        values.put(TA_LONGITUDE  , (double) alerta.getLng());
+        values.put(TA_POSNEG     , (alerta.getPosNeg()) ? 1:0);
+        values.put(TA_LATITUDE   , alerta.getLat());
+        values.put(TA_LONGITUDE  , alerta.getLng());
         values.put(TA_TIPOALERTA , alerta.getTipoAlerta());
         values.put(TA_HORA       , alerta.getHora());
         values.put(TA_FECHA      , alerta.getFecha());
         values.put(TA_TITULO     , alerta.getTitulo());
         values.put(TA_DESCRIPCION, alerta.getDescrption());
         values.put(TA_IDRUTA     , alerta.getIdRuta());
-        values.put(TA_VERSION    , firstVertion);
+        values.put(TA_VERSION    , alerta.getVersion());
         values.put(TA_ESTADO     , alerta.getEstado());
 
         db.insert(ALERTAS_TABLE, null, values);
@@ -399,6 +410,22 @@ public class DatabaseHandler extends SQLiteOpenHelper
         return destinos;
     }
 
+    public int getLastDestinationId() {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String query = "SELECT MAX(" + TD_ID + ") FROM " + DESTINOS_TABLE;
+
+        Cursor cursor = db.rawQuery(query, null);
+
+        int biggestDestId = -1;
+        if(cursor.moveToFirst()) {
+            biggestDestId = cursor.getInt(0);
+        }
+        cursor.close();
+
+        return biggestDestId;
+    }
+
     /*------------------------------------------------------*/
     /*------------------------ Rutas -----------------------*/
     public List<Ruta> getRutas() {
@@ -533,13 +560,13 @@ public class DatabaseHandler extends SQLiteOpenHelper
 
         Cursor cursor = db.rawQuery(query, null);
 
-        int biggestAlertaId = -1;
+        int biggestId = -1;
         if(cursor.moveToFirst()) {
-            biggestAlertaId = cursor.getInt(0);
+            biggestId = cursor.getInt(0);
         }
         cursor.close();
 
-        return biggestAlertaId;
+        return biggestId;
     }
 
     public void eraseAlertasTable() {

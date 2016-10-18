@@ -118,8 +118,9 @@ public class EnRutaTrackingService extends Service implements
         LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient,this);
         mGoogleApiClient.disconnect();
 
-        //               numPos, numNeg, duracion, distancia
+        //                      numPos, numNeg, duracion, distancia
         baseDatos.endRoute(idRuta, 0, 0, 0, 0);
+        Log.i("EnRutaTrackingService", "ending route " + idRuta);
     }
 
     /* |                                                 */

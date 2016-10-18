@@ -7,6 +7,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -46,7 +47,7 @@ public class MisAlertasActivity extends AppCompatActivity implements
 
         // Initializing BaseDatos
         baseDatos = new DatabaseHandler(this);
-        baseDatos.eraseAlertasTable();
+        //baseDatos.eraseAlertasTable();
 
         // Catch new Alerta action
         Intent intent = getIntent();
@@ -55,8 +56,9 @@ public class MisAlertasActivity extends AppCompatActivity implements
             if (action.equals("REQUESTING_NEW_ALERTA")) {
                 openAlertasEditDialog(
                         null,
-                        (float) intent.getDoubleExtra("NEW_ALERTA_LATITUDE", 0),
-                        (float) intent.getDoubleExtra("NEW_ALERTA_LONGITUDE", 0));
+                        intent.getDoubleExtra("NEW_ALERTA_LATITUDE", 0),
+                        intent.getDoubleExtra("NEW_ALERTA_LONGITUDE", 0),
+                        intent.getIntExtra("NEW_ALERTA_IDRUTA", -1));
             }
         }
 
@@ -115,64 +117,65 @@ public class MisAlertasActivity extends AppCompatActivity implements
             listaAlertas = baseDatos.getAlertas();
 
             if (listaAlertas.isEmpty()) {
+                Log.i("MisAlertasActivity","populating alertas table");
                 baseDatos.newAlerta(new Alerta(
-                        2010, false, (float) -33.450276, (float) -70.627628,
+                        2010, false, -33.450276, -70.627628,
                         "auto",
                         "12:56", "20/09/2016",
                         "Cruce de autos imprudentes",
                         "Casi salgo volando por un auto que se precipito con mi dedo chico",
                         3010, 0, "completa"));
                 baseDatos.newAlerta(new Alerta(
-                        2011, true, (float) -33.444446, (float) -70.628695,
+                        2011, true, -33.444446, -70.628695,
                         "vias",
                         "16:44", "26/09/2016",
                         "Nueva ciclovia",
                         "esta super choriflai me encanta para venir cno mis amigos de la prepa",
                         3010, 0, "pendiente"));
                 baseDatos.newAlerta(new Alerta(
-                        2012, false, (float) -33.451013, (float) -70.629386,
+                        2012, false, -33.451013, -70.629386,
                         "peat",
                         "13:32", "13/08/2016",
                         "Peaton qlo",
                         "Que wea se cree el zarpao se te cruza y na así nomá",
                         3010, 0, "pendiente"));
                 baseDatos.newAlerta(new Alerta(
-                        2013, false, (float) -33.452174, (float) -70.626191,
+                        2013, false, -33.452174, -70.626191,
                         "auto",
                         "01:45", "19/08/2016",
                         "Muchas micros",
                         "Ando todo nervioso por culpa de todas las micros",
                         3010, 0, "pendiente"));
                 baseDatos.newAlerta(new Alerta(
-                        2014, true, (float) -33.446737, (float) -70.630335,
+                        2014, true, -33.446737, -70.630335,
                         "mant",
                         "14:07", "07/09/2016",
                         "Buen taller de bicis",
                         "Justo se me pincho la rueda por acá cerca y pase a parcharla",
                         3010, 0, "completa"));
                 baseDatos.newAlerta(new Alerta(
-                        2015, true, (float) -33.446978, (float) -70.628538,
+                        2015, true, -33.446978, -70.628538,
                         "otro",
                         "20:00", "20/09/2016",
                         "Harta vida nocturna",
                         "Esta bueno, hay artos bares y pubs con estacionamiento para bicis",
                         3010, 0, "completa"));
                 baseDatos.newAlerta(new Alerta(
-                        2016, true, (float) -33.446057, (float) -70.630664,
+                        2016, true, -33.446057, -70.630664,
                         "vege",
                         "12:32", "14/09/2016",
                         "Rica calzada con arboles",
                         "Agradable circular por esta área",
                         3010, 0, "pendiente"));
                 baseDatos.newAlerta(new Alerta(
-                        2017, false, (float) -33.452373, (float) -70.628868,
+                        2017, false, -33.452373, -70.628868,
                         "peat",
                         "11:26", "18/09/2016",
                         "Cruce de muchos peatones",
                         "Es algo molesto poder cruzar a veces",
                         3010, 0, "completa"));
                 baseDatos.newAlerta(new Alerta(
-                        2018, false, (float) -33.448125, (float) -70.630219,
+                        2018, false, -33.448125, -70.630219,
                         "vege",
                         "10:40", "17/09/2016",
                         "Arbol molesto",
@@ -180,6 +183,8 @@ public class MisAlertasActivity extends AppCompatActivity implements
                         3010, 0, "pendiente"));
             }
         }
+
+        Log.i("MisAlertasActivity","número de alertas: " + listaAlertas.size());
 
         // TODO: Ahora cada fragment hace acceso a la base de datos y carga las alertas
         // correspondientes de manera independiente. El siguiente paso es hacer que la actividad
@@ -223,10 +228,10 @@ public class MisAlertasActivity extends AppCompatActivity implements
 
     @Override
     public void onAlertasListClick(Alerta alerta) {
-        openAlertasEditDialog(alerta, 0, 0);
+        openAlertasEditDialog(alerta, 0, 0, -1);
     }
 
-    public void openAlertasEditDialog(Alerta alerta, float lat, float lon) {
+    public void openAlertasEditDialog(Alerta alerta, double lat, double lon, int idRuta) {
         fragmentManager = getSupportFragmentManager();
         dialog = new AlertaEditDialog();
         Bundle newAlertaExtras = new Bundle();
@@ -234,11 +239,13 @@ public class MisAlertasActivity extends AppCompatActivity implements
             newAlertaExtras = alerta.toBundle();
             newAlertaExtras.putString("NEW_ALERTA_ACTION", "EDIT_ALERTA");
         } else {
-            int lastAlertaId = baseDatos.getLastAlertaId();
+            int alertaId = baseDatos.getLastAlertaId() + 1;
+            Log.i("MisAlertasActivity","openAlertasEditDialog - last alerta id: " + (alertaId - 1));
             newAlertaExtras.putString("NEW_ALERTA_ACTION","NEW_ALERTA_FROM_MAP");
-            newAlertaExtras.putInt("NEW_ALERTA_ID", lastAlertaId + 1);
-            newAlertaExtras.putFloat("NEW_ALERTA_LAT", lat);
-            newAlertaExtras.putFloat("NEW_ALERTA_LON", lon);
+            newAlertaExtras.putInt("NEW_ALERTA_ID", alertaId);
+            newAlertaExtras.putDouble("NEW_ALERTA_LAT", lat);
+            newAlertaExtras.putDouble("NEW_ALERTA_LON", lon);
+            newAlertaExtras.putInt("NEW_ALERTA_IDRUTA", idRuta);
         }
 
         dialog.setArguments(newAlertaExtras);
@@ -263,9 +270,12 @@ public class MisAlertasActivity extends AppCompatActivity implements
     public void onAgregarAlerta(Alerta alerta, String action) {
         if (action.equals("UPDATE_ALERTA")) {
             Toast.makeText(this, "updating alerta " + alerta.getTitulo(), Toast.LENGTH_SHORT).show();
+            baseDatos.updateAlerta(alerta);
         } else {
-            Toast.makeText(this, "creating alerta" + alerta.getTitulo(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "creating alerta " + alerta.getId(), Toast.LENGTH_SHORT).show();
+            baseDatos.newAlerta(alerta);
         }
+        dialog.dismiss();
     }
 
     @Override
