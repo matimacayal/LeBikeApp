@@ -28,11 +28,11 @@
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:layout_weight="1"
-                tools:context="org.fablabsantiago.smartcities.app.appmobile.LeBikeActivity"/>
+                tools:context="org.fablabsantiago.smartcities.app.appmobile.UI.LeBikeActivity"/>
 
             <!-- Bottom Information -->
             <fragment
-                android:name="org.fablabsantiago.smartcities.app.appmobile.EnRutaAuxiliaryBottomBar"
+                android:name="org.fablabsantiago.smartcities.app.appmobile.UI.Fragments.EnRutaAuxiliaryBottomBar"
                 android:id="@+id/bottomEnRutaFragment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>

@@ -74,7 +74,7 @@
             android:textColor="#5f5f5f"
             android:textSize="15sp"
             android:background="@drawable/ic_nuevo_destino_button"
-            android:onClick="otroRoute"/>/>
+            android:onClick="addDestination"/>/>
 
     </LinearLayout>
 

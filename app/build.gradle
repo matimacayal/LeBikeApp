@@ -7,9 +7,10 @@ android {
     defaultConfig {
         applicationId "org.fablabsantiago.smartcities.app.appmobile"
         minSdkVersion 18
-        targetSdkVersion 23
+        targetSdkVersion 19
         versionCode 1
         versionName "1.0"
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -18,6 +19,7 @@ android {
         }
     }
 }
+
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])

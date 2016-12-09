@@ -104,7 +104,7 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="20dp"
         android:background="@drawable/ic_boton_verde"
-        android:onClick="nuevoDestinozi"
+        android:onClick="nuevoDestino"
         android:adjustViewBounds="false"/>
 
 </FrameLayout>
