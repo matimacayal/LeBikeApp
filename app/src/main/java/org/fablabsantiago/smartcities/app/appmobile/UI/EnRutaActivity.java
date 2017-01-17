@@ -47,15 +47,11 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.punchthrough.bean.sdk.Bean;
 import com.punchthrough.bean.sdk.BeanDiscoveryListener;
-import com.punchthrough.bean.sdk.BeanListener;
 import com.punchthrough.bean.sdk.BeanManager;
-import com.punchthrough.bean.sdk.message.BeanError;
-import com.punchthrough.bean.sdk.message.Callback;
-import com.punchthrough.bean.sdk.message.ScratchBank;
 
+import org.fablabsantiago.smartcities.app.appmobile.Services.TrackingService;
 import org.fablabsantiago.smartcities.app.appmobile.Utils.DatabaseHandler;
 import org.fablabsantiago.smartcities.app.appmobile.UI.Fragments.EnRutaAuxiliaryBottomBar;
-import org.fablabsantiago.smartcities.app.appmobile.Services.EnRutaTrackingService;
 import org.fablabsantiago.smartcities.app.appmobile.Utils.GPX;
 import org.fablabsantiago.smartcities.app.appmobile.Clases.Alerta;
 import org.fablabsantiago.smartcities.app.appmobile.Clases.Destino;
@@ -200,10 +196,11 @@ public class EnRutaActivity extends AppCompatActivity implements
     public void startTrack(boolean trackingState) {
         // TODO: (3) confirm correct service load from the service.
         // Actual implementation is blind to whats happening in the service.
-        Intent trackingRouteService = new Intent(this, EnRutaTrackingService.class);
+        Intent trackingRouteService = new Intent(this, TrackingService.class);
         if (!trackingState) {
             if (isLocationAvailableAndStoreIt()) {
                 trackingRouteService.putExtra("destino_id", destinationId);
+                trackingRouteService.setAction(TrackingService.START_TRACK);
                 Log.i("EnRutaActivity", "startTrack - comenzando servicio");
                 startService(trackingRouteService);
                 trackingState = true;
@@ -631,7 +628,11 @@ public class EnRutaActivity extends AppCompatActivity implements
 
     /*---------- Bluetooth ----------*/
     protected void beanElementClicked(final Bean bean) {
-        BeanListener beanListener = new BeanListener()
+        Intent bleIntent = new Intent(this, TrackingService.class);
+        bleIntent.setAction(TrackingService.CONNECT_BLE);
+        bleIntent.putExtra(TrackingService.BEAN, bean);
+        startService(bleIntent);
+        /*BeanListener beanListener = new BeanListener()
         {
             @Override
             public void onConnected() {
@@ -689,9 +690,9 @@ public class EnRutaActivity extends AppCompatActivity implements
                     TextView info = (TextView) findViewById(R.id.infoTextView);
                     Snackbar.make(info, "Serial msg: " + msg, Snackbar.LENGTH_SHORT).setAction("Action", null).show();
 
-                    /*                          */
-                    /* Point alerta and save it */
-                    /* ------------------------ */
+                    /*
+                    /* Point alerta and save it
+                    /* ------------------------
                     if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
                     {
                         //    ActivityCompat#requestPermissions
@@ -735,6 +736,7 @@ public class EnRutaActivity extends AppCompatActivity implements
 
         // Assuming you are in an Activity, use 'this' for the context
         bean.connect(context, beanListener);
+        */
     }
 
     /*---------- Bluetooth ----------*/

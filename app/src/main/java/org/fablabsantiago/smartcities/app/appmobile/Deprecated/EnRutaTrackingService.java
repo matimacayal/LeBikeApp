@@ -1,4 +1,4 @@
-package org.fablabsantiago.smartcities.app.appmobile.Services;
+package org.fablabsantiago.smartcities.app.appmobile.Deprecated;
 
 
 import android.app.Service;
@@ -55,7 +55,7 @@ public class EnRutaTrackingService extends Service implements
         /*---------- Base Datos ----------*/
         baseDatos = new DatabaseHandler(this);
 
-        DateFormat date = new SimpleDateFormat("HHmmss:ddMMyyy");
+        DateFormat date = new SimpleDateFormat("HHmmss:ddMMyyyy");
         routeName = "origen_destino" + "_" + date.format(new Date()) + "_" + "n";
         Log.i("EnRutaTrackingService","onCreate: routeName=" + routeName + "(not used)");
 

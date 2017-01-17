@@ -90,7 +90,7 @@
                 android:value=".UI.LeBikeActivity"/>
         </activity>
 
-        <service android:name=".Services.EnRutaTrackingService" />
+        <service android:name=".Services.TrackingService"/>
     </application>
 
 </manifest>
