@@ -3,10 +3,12 @@ package org.fablabsantiago.smartcities.app.appmobile.Clases;
 
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.google.android.gms.maps.model.LatLng;
 
-public class Alerta {
+public class Alerta implements Parcelable{
 
     /* Fields
      *
@@ -72,9 +74,23 @@ public class Alerta {
         estado = bundle.getString(EST_KEY);
     }
 
+    protected Alerta(Parcel in) {
+        id = in.readInt();
+        lat = in.readDouble();
+        lng = in.readDouble();
+        tipoAlerta = in.readString();
+        hora = in.readString();
+        fecha = in.readString();
+        titulo = in.readString();
+        description = in.readString();
+        idRuta = in.readInt();
+        version = in.readInt();
+        estado = in.readString();
+    }
+
     /* Method
-     *
-     */
+         *
+         */
     public int getId() {
         return id;
     }
@@ -156,16 +172,56 @@ public class Alerta {
     /* Constants
      *
      */
-    String ID_KEY = "alerta_id";
-    String POSNEG_KEY = "alerta_posneg";
-    String LAT_KEY = "alerta_lat";
-    String LON_KEY = "alerta_lon";
-    String TA_KEY = "alerta_tipoAlerta";
-    String HORA_KEY = "alerta_hora";
-    String FECHA_KEY = "alerta_fecha";
-    String TITULO_KEY = "alerta_titulo";
-    String DESC_KEY = "alerta_desc";
-    String ID_RUTA_KEY = "alerta_idRuta";
-    String VER_KEY = "alerta_version";
-    String EST_KEY = "alerta_estado";
+    public static final String ID_KEY = "alerta_id";
+    public static final String POSNEG_KEY = "alerta_posneg";
+    public static final String LAT_KEY = "alerta_lat";
+    public static final String LON_KEY = "alerta_lon";
+    public static final String TA_KEY = "alerta_tipoAlerta";
+    public static final String HORA_KEY = "alerta_hora";
+    public static final String FECHA_KEY = "alerta_fecha";
+    public static final String TITULO_KEY = "alerta_titulo";
+    public static final String DESC_KEY = "alerta_desc";
+    public static final String ID_RUTA_KEY = "alerta_idRuta";
+    public static final String VER_KEY = "alerta_version";
+    public static final String EST_KEY = "alerta_estado";
+
+
+    /********** Parceable Methods **********/
+    // Alerta parceable constructor its in the constructors section
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(id);
+        dest.writeDouble(lat);
+        dest.writeDouble(lng);
+        dest.writeString(tipoAlerta);
+        dest.writeString(hora);
+        dest.writeString(fecha);
+        dest.writeString(titulo);
+        dest.writeString(description);
+        dest.writeInt(idRuta);
+        dest.writeInt(version);
+        dest.writeString(estado);
+    }
+
+    public static final Parcelable.Creator<Alerta> CREATOR
+            = new Parcelable.Creator<Alerta>() {
+
+        // This simply calls our new constructor (typically private) and
+        // passes along the unmarshalled `Parcel`, and then returns the new object!
+        @Override
+        public Alerta createFromParcel(Parcel in) {
+            return new Alerta(in);
+        }
+
+        // We just need to copy this and change the type to match our class.
+        @Override
+        public Alerta[] newArray(int size) {
+            return new Alerta[size];
+        }
+    };
 }

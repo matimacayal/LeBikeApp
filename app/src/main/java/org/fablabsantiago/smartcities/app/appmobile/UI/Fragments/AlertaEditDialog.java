@@ -67,7 +67,7 @@ public class AlertaEditDialog extends DialogFragment
             if (action.equals("EDIT_ALERTA")) {
                 alertaInfo.remove("NEW_ALERTA_ACTION");
                 alerta = new Alerta(alertaInfo);
-            } else if (action.equals("NEW_ALERTA_FROM_MAP")){
+            } else if (action.equals("NEW_ALERTA_FROM_MAP")) {
                 alerta = null;
             }
         }
@@ -98,15 +98,11 @@ public class AlertaEditDialog extends DialogFragment
         TextView agregar = (TextView) view.findViewById(R.id.edit_alerta_dialog_agregar);
         TextView eliminar = (TextView) view.findViewById(R.id.edit_alerta_dialog_eliminar);
 
-        tiposAlerta = new ArrayList<ImageView>(
-                Arrays.asList(
-                        ciclovia,
-                        vias,
-                        espacios,
-                        mantencion,
-                        automoviles,
-                        otros,
-                        peaton));
+        tiposAlerta = new ArrayList<ImageView>(Arrays.asList(
+                ciclovia, vias,
+                espacios, mantencion,
+                automoviles, otros,
+                peaton));
 
         if (alerta != null) {
             fecha.setText(alerta.getFecha());
@@ -129,7 +125,7 @@ public class AlertaEditDialog extends DialogFragment
                 default:
                     break;
             }
-        } else  {
+        } else {
             DateFormat date = new SimpleDateFormat("dd/MM/yy");
             DateFormat hour = new SimpleDateFormat("HH:mm");
             String dateText =  date.format(new Date());

@@ -3,8 +3,10 @@ package org.fablabsantiago.smartcities.app.appmobile.UI;
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
@@ -15,6 +17,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -70,6 +73,8 @@ public class EnRutaActivity extends AppCompatActivity implements
         GoogleApiClient.OnConnectionFailedListener,
         EnRutaAuxiliaryBottomBar.BottomBarListener
 {
+    protected String TAG = EnRutaActivity.class.getSimpleName();
+
     private Context context;
     DatabaseHandler baseDatos;
     String intentAction;
@@ -99,6 +104,8 @@ public class EnRutaActivity extends AppCompatActivity implements
     private ArrayAdapter<String> adapter;
     private ListView beansListView;
 
+    private BroadcastReceiver trackingReceiver;
+
     EnRutaAuxiliaryBottomBar auxiliarBottomFragment;
 
     @Override
@@ -109,14 +116,19 @@ public class EnRutaActivity extends AppCompatActivity implements
         context = this;
 
         setContentView(R.layout.activity_enruta);
-        /*---------- Base Datos ----------*/
-        baseDatos = new DatabaseHandler(this);
 
+        // Leyendo contenido del intent:
+        //     - destino (en caso de querer dirigirse a un destino)
+        //     - action (en caso de que la actividad se habrá con una intención especifica)
+        //           '-> opciones: "NEW_ALERTA"
         Intent intent = getIntent();
         destinationId = intent.getIntExtra("DESTINO_ID", 0);
         intentAction = intent.getAction();
         if (intentAction == null) {intentAction = "";}
         Log.i("EnRutaACtivity", "id destino: " + Integer.toString(destinationId));
+
+        /*---------- Base Datos ----------*/
+        baseDatos = new DatabaseHandler(this);
 
         /*---------- Mapa ----------*/
         if (mGoogleApiClient == null) {
@@ -141,6 +153,122 @@ public class EnRutaActivity extends AppCompatActivity implements
         /*---------- Tracking ----------*/
         auxiliarBottomFragment = (EnRutaAuxiliaryBottomBar) getSupportFragmentManager().findFragmentById(R.id.bottomEnRutaFragment);
         auxiliarBottomFragment.setBottomBarListener(this);
+
+        /*---------- Comunicación TrackingService ----------*/
+        initializeServiceCommunication();
+    }
+
+    protected void initializeServiceCommunication() {
+        trackingReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Log.i(TAG, "Broadcast received.");
+                String action = intent.getAction();
+                switch(action) {
+                    case TrackingService.BEAN_CONNECTED:
+                        beanConnected(intent);
+                        break;
+                    case TrackingService.BEAN_DISCONNECTED:
+                        beanDisconnected();
+                        break;
+                    case TrackingService.NEW_ALERTA:
+                        beanNewAlerta(intent);
+                        break;
+                    case TrackingService.TRACKING_STARTED:
+                        onTrackingStarted();
+                        break;
+                    case TrackingService.NEW_ROUTE_POINT:
+                        onNewRoutePoint(intent);
+                        break;
+                    case TrackingService.TRACKING_ENDED:
+                        onTrackingEnded();
+                        break;
+                    default:
+                        Log.i(TAG, "TrackingReceiver - Invalid action");
+                        break;
+                }
+
+            }
+        };
+    }
+
+    protected void beanConnected(Intent intent) {
+        connectedBean = intent.getParcelableExtra(TrackingService.BEAN);
+
+        TextView info = (TextView) findViewById(R.id.infoTextView);
+        info.setText(connectedBean.getDevice().getName() + " Connected.");
+        FloatingActionButton newmail = (FloatingActionButton) findViewById(R.id.newmail);
+        newmail.setVisibility(View.VISIBLE);
+    }
+
+    protected void beanDisconnected() {
+        connectedBean = null;
+        TextView info = (TextView) findViewById(R.id.infoTextView);
+        info.setText("Bean Disconnected.");
+        FloatingActionButton newmail = (FloatingActionButton) findViewById(R.id.newmail);
+        newmail.setVisibility(View.GONE);
+    }
+
+    protected void beanNewAlerta(Intent intent) {
+        Log.i(TAG, "beanNewAlerta - in");
+        Alerta alerta = intent.getParcelableExtra(TrackingService.ALERTA);
+
+        TextView info = (TextView) findViewById(R.id.infoTextView);
+        Snackbar.make(info, "Vote: " + Boolean.toString(alerta.getPosNeg()), Snackbar.LENGTH_SHORT).setAction("Action", null).show();
+
+        /*                          */
+        /* Point alerta and save it */
+        /* ------------------------ */
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+        {
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            //return;
+        }
+        //Location pointLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        BitmapDescriptor posNegIcon = (alerta.getPosNeg()) ?
+                BitmapDescriptorFactory.fromResource(R.drawable.marker_positive)
+                : BitmapDescriptorFactory.fromResource(R.drawable.marker_negative);
+
+        // TODO: (7) agregar marker a mapAlertas.
+        Marker point = mMap.addMarker(new MarkerOptions()
+                .position(alerta.getLatLng())
+                .icon(posNegIcon));
+    }
+
+    protected void onTrackingStarted() {
+        boolean trackingState = true;
+        startTrackResponseToAuxFragment(trackingState);
+    }
+
+    protected void onNewRoutePoint(Intent intent) {
+        Location location = intent.getParcelableExtra(TrackingService.LOCATION);
+        if (mMap != null) {
+            mMap.addMarker(new MarkerOptions()
+                    .position(loc2LL(location))
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.big_dot)));
+        }
+    }
+
+    protected void onTrackingEnded() {
+        //Save ruta table to a gpx file
+        List<Location> routePoints = baseDatos.getRoutePoints();
+        if (routePoints.size() > 2) {
+            File file = new File(context.getFilesDir(), Integer.toString(baseDatos.getLastRutasId()) + ".gpx");
+            GPX.writePath(file, Integer.toString(baseDatos.getLastRutasId()), routePoints);
+            Log.i("EnRutaActivity", "saved file: " + file.toString());
+        } else {
+            baseDatos.deleteRoute(baseDatos.getLastRutasId());
+        }
+
+        baseDatos.eraseTrackPoints();
+
+        boolean trackingState = false;
+        startTrackResponseToAuxFragment(trackingState);
     }
 
     @Override
@@ -190,8 +318,19 @@ public class EnRutaActivity extends AppCompatActivity implements
             // mBluetoothAdapter.isEnabled() mejor hacerlo cada vez que se aprete porque el loco
             // puede activarlo en medio del uso de la app
         }
+
+        /*---------- Service-Activity Communication ----------*/
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(TrackingService.BEAN_CONNECTED);
+        filter.addAction(TrackingService.BEAN_DISCONNECTED);
+        filter.addAction(TrackingService.NEW_ALERTA);
+        filter.addAction(TrackingService.TRACKING_STARTED);
+        filter.addAction(TrackingService.NEW_ROUTE_POINT);
+        filter.addAction(TrackingService.TRACKING_ENDED);
+        LocalBroadcastManager.getInstance(this).registerReceiver(trackingReceiver, filter);
     }
 
+    // BottomBar interface
     @Override
     public void startTrack(boolean trackingState) {
         // TODO: (3) confirm correct service load from the service.
@@ -203,7 +342,8 @@ public class EnRutaActivity extends AppCompatActivity implements
                 trackingRouteService.setAction(TrackingService.START_TRACK);
                 Log.i("EnRutaActivity", "startTrack - comenzando servicio");
                 startService(trackingRouteService);
-                trackingState = true;
+                // Then, when the service initializces correctly, it calls back the activity by a broadcast
+
                 // TODO: (4) Check if location is available through the background service.
                 // If location its shutted down while recording, push a notification warning.
             } else {
@@ -212,22 +352,11 @@ public class EnRutaActivity extends AppCompatActivity implements
         } else {
             Log.i("EnRutaActivity", "onClick - cerrando servicio");
             stopService(trackingRouteService);
-            trackingState = false;
-
-            //Save ruta table to a gpx file
-            List<Location> routePoints = baseDatos.getRoutePoints();
-            if (routePoints.size() > 2) {
-                File file = new File(context.getFilesDir(), Integer.toString(baseDatos.getLastRutasId()) + ".gpx");
-                GPX.writePath(file, Integer.toString(baseDatos.getLastRutasId()), routePoints);
-                Log.i("EnRutaActivity", "saved file: " + file.toString());
-            } else {
-                baseDatos.deleteRoute(baseDatos.getLastRutasId());
-            }
-
-            baseDatos.eraseTrackPoints();
         }
+    }
 
-        auxiliarBottomFragment.startTrackResponse(trackingState);
+    protected void startTrackResponseToAuxFragment(boolean trackngState) {
+        auxiliarBottomFragment.startTrackResponse(trackngState);
     }
 
     @Override
@@ -238,6 +367,8 @@ public class EnRutaActivity extends AppCompatActivity implements
         /*---------- Mapa ----------*/
         mGoogleApiClient.disconnect();
 
+        /*---------- Service-Activity Communication ----------*/
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(trackingReceiver);
     }
 
 
@@ -260,6 +391,7 @@ public class EnRutaActivity extends AppCompatActivity implements
 
                 cancelScann(false);
 
+                //TODO: cambiar '0' por 'position'
                 // Assume we have a reference to the 'beans' ArrayList from above.
                 final Bean beanElement = beans.get(0);
 
@@ -430,6 +562,7 @@ public class EnRutaActivity extends AppCompatActivity implements
                     .addAll(ruta.getTrack(this, ruta.getId()))
             );
         }
+
         Log.i("EnRutaACtivity","las ruta id: " + baseDatos.getLastRutasId());
 
         /*---------------- Agregar nuevas alertas ------------------*/
@@ -632,111 +765,6 @@ public class EnRutaActivity extends AppCompatActivity implements
         bleIntent.setAction(TrackingService.CONNECT_BLE);
         bleIntent.putExtra(TrackingService.BEAN, bean);
         startService(bleIntent);
-        /*BeanListener beanListener = new BeanListener()
-        {
-            @Override
-            public void onConnected() {
-                connectedBean = bean;
-
-                TextView info = (TextView) findViewById(R.id.infoTextView);
-                info.setText(bean.getDevice().getName() + " Connected.");
-                FloatingActionButton newmail = (FloatingActionButton) findViewById(R.id.newmail);
-                newmail.setVisibility(View.VISIBLE);
-
-                Log.i("MainActivity", "connected to '" + bean.getDevice().getName());
-                bean.readTemperature(new Callback<Integer>()
-                {
-                    @Override
-                    public void onResult(Integer temp) {
-                        Toast.makeText(context, bean.getDevice().getName() + " temp = " + Integer.toString(temp) + "°C", Toast.LENGTH_SHORT).show();
-                        Log.i("MainActivity", "onConnected," + bean.getDevice().getName() + "temp = " + Integer.toString(temp) + "°C");
-                    }
-                });
-
-                //bean.sendSerialMessage("Hola\n");
-            }
-
-            @Override
-            public void onConnectionFailed() {
-                Log.i("MainActivity", "BeanListener.onConnectionFailed");
-            }
-
-            @Override
-            public void onDisconnected() {
-                Log.i("MainActivity", "BeanListener.onDisconnected");
-                connectedBean = null;
-                TextView info = (TextView) findViewById(R.id.infoTextView);
-                info.setText("Bean Disconnected.");
-                FloatingActionButton newmail = (FloatingActionButton) findViewById(R.id.newmail);
-                newmail.setVisibility(View.GONE);
-            }
-
-            @Override
-            public void onSerialMessageReceived(byte[] data) {
-                Log.i("MainActivity", "BeanListener.onSerialMessageReceived");
-                //Toast.makeText(context, "serial msg received", Toast.LENGTH_SHORT).show();
-                Integer dataLength = data.length;
-                if (dataLength != 1) {
-                    // ¿Hay que revisar cuando el length puede ser 0?
-                    Log.i("MainActivity", "BeanListener message length: " + Integer.toString(dataLength));
-                    char[] dataChar = new char[dataLength];
-                    //byte b;
-                    for (int i = 0; i < dataLength; i++) {
-                        dataChar[i] = (char) data[i];
-                    }
-                    String msg = new String(dataChar);
-                    Log.i("MainActivity", "BeanListener message content: " + msg);
-
-                    TextView info = (TextView) findViewById(R.id.infoTextView);
-                    Snackbar.make(info, "Serial msg: " + msg, Snackbar.LENGTH_SHORT).setAction("Action", null).show();
-
-                    /*
-                    /* Point alerta and save it
-                    /* ------------------------
-                    if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
-                    {
-                        //    ActivityCompat#requestPermissions
-                        // here to request the missing permissions, and then overriding
-                        //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                        //                                          int[] grantResults)
-                        // to handle the case where the user grants the permission. See the documentation
-                        // for ActivityCompat#requestPermissions for more details.
-                        //return;
-                    }
-                    Location pointLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-                    BitmapDescriptor posNegIcon = (msg.contains("osit")) ?
-                            BitmapDescriptorFactory.fromResource(R.drawable.marker_positive)
-                            : BitmapDescriptorFactory.fromResource(R.drawable.marker_negative);
-
-                    // TODO: (7) agregar marker a mapAlertas.
-                    Marker point = mMap.addMarker(new MarkerOptions()
-                            .position(new LatLng(pointLocation.getLatitude(), pointLocation.getLongitude()))
-                            .icon(posNegIcon));
-
-                } else {
-                    //Pensar que hacer con lo CR LF - \r\n
-                }
-            }
-
-            @Override
-            public void onScratchValueChanged(ScratchBank bank, byte[] value) {
-                Log.i("MainActivity", "BeanListener.onScratchValueChanged");
-            }
-
-            @Override
-            public void onError(BeanError error) {
-                Log.i("MainActivity", "BeanListener.onError");
-            }
-
-            @Override
-            public void onReadRemoteRssi(int rssi) {
-                Log.i("MainActivity", "BeanListener.onReadRemoteRssi");
-            }
-        };
-
-        // Assuming you are in an Activity, use 'this' for the context
-        bean.connect(context, beanListener);
-        */
     }
 
     /*---------- Bluetooth ----------*/
@@ -778,8 +806,7 @@ public class EnRutaActivity extends AppCompatActivity implements
 
             Toast.makeText(this, "Press new mail to cancel ->", Toast.LENGTH_SHORT).show();
             Snackbar.make(view, "Bean listener started", Snackbar.LENGTH_LONG).setAction("Action", null).show();
-        } else //Bluetooth disabled
-        {
+        } else { //Bluetooth disabled
             disabledBluetoothAction();
         }
     }
@@ -791,31 +818,26 @@ public class EnRutaActivity extends AppCompatActivity implements
     }
 
     /*---------- Bluetooth ----------*/
-    public void newMail(View view) //cancelButton
+    public void newMail(View view) //cancelButtonc
     {
-        if (connectedBean != null)
-        {
-            if (connectedBean.isConnected())
-            {
+        if (connectedBean != null) {
+            if (connectedBean.isConnected()) {
                 connectedBean.disconnect();
                 connectedBean = null;
                 TextView info = (TextView) findViewById(R.id.infoTextView);
                 info.setText("Bean Disconnected.");
                 FloatingActionButton newmail = (FloatingActionButton) findViewById(R.id.newmail);
                 newmail.setVisibility(View.GONE);
-            } else
-            {
+            } else {
                 Log.e("MainActivity", "newMail, ERROR: connectedBean != null && connectedBean disconnected, no valid states");
             }
-        } else
-        {
+        } else {
             cancelScann(true);
         }
     }
 
     /*---------- Bluetooth ----------*/
-    public void exitDeviceConnect(View view)
-    {
+    public void exitDeviceConnect(View view) {
         FrameLayout onRouteMapActivity = (FrameLayout) findViewById(R.id.on_route_map_activity_layout);
         LinearLayout beanConnectActivity = (LinearLayout) findViewById(R.id.bean_connect_layout);
         exitBeanConnectSubactivity(onRouteMapActivity,beanConnectActivity);
@@ -828,8 +850,7 @@ public class EnRutaActivity extends AppCompatActivity implements
         FrameLayout onRouteMapActivity = (FrameLayout) findViewById(R.id.on_route_map_activity_layout);
         LinearLayout beanConnectActivity = (LinearLayout) findViewById(R.id.bean_connect_layout);
 
-        if(beanConnectActivity.getVisibility() == View.VISIBLE)
-        {
+        if(beanConnectActivity.getVisibility() == View.VISIBLE) {
             //Exited xd
             exitBeanConnectSubactivity(onRouteMapActivity, beanConnectActivity);
         } else {
@@ -858,18 +879,14 @@ public class EnRutaActivity extends AppCompatActivity implements
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_bean_device)
-        {
+        if (id == R.id.action_bean_device) {
             FrameLayout onRouteMapActivity = (FrameLayout) findViewById(R.id.on_route_map_activity_layout);
             LinearLayout beanConnectActivity = (LinearLayout) findViewById(R.id.bean_connect_layout);
 
-            if(beanConnectActivity.getVisibility() == View.VISIBLE)
-            {
+            if(beanConnectActivity.getVisibility() == View.VISIBLE) {
                 //Exited xd
                 exitBeanConnectSubactivity(onRouteMapActivity, beanConnectActivity);
-            }
-            else
-            {
+            } else {
                 //Entered
                 onRouteMapActivity.setVisibility(View.INVISIBLE);
                 beanConnectActivity.setVisibility(View.VISIBLE);

@@ -1,6 +1,5 @@
 package org.fablabsantiago.smartcities.app.appmobile.Services;
 
-import android.Manifest;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -10,12 +9,9 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -23,21 +19,15 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.model.BitmapDescriptor;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.punchthrough.bean.sdk.Bean;
 import com.punchthrough.bean.sdk.BeanListener;
 import com.punchthrough.bean.sdk.message.BeanError;
 import com.punchthrough.bean.sdk.message.Callback;
 import com.punchthrough.bean.sdk.message.ScratchBank;
 
-import org.fablabsantiago.smartcities.app.appmobile.R;
+import org.fablabsantiago.smartcities.app.appmobile.Clases.Alerta;
 import org.fablabsantiago.smartcities.app.appmobile.Utils.DatabaseHandler;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -47,8 +37,19 @@ public class TrackingService extends Service implements
         LocationListener
 {
     public static final String START_TRACK = "org.fablabsantiago.smartcities.app.appmobile.Services.TrackingService.START_TRACK";
+    public static final String END_TRACK = "org.fablabsantiago.smartcities.app.appmobile.Services.TrackingService.END_TRACK";
     public static final String CONNECT_BLE = "org.fablabsantiago.smartcities.app.appmobile.Services.TrackingService.CONNECT_BLE";
     public static final String BEAN = "org.fablabsantiago.smartcities.app.appmobile.Services.TrackingService.BEAN";
+
+    public static final String BEAN_CONNECTED = "org.fablabsantiago.smartcities.app.appmobile.Services.TrackingService.BEAN_CONNECTED";
+    public static final String BEAN_DISCONNECTED = "org.fablabsantiago.smartcities.app.appmobile.Services.TrackingService.BEAN_DISCONNECTED";
+    public static final String NEW_ALERTA = "org.fablabsantiago.smartcities.app.appmobile.Services.TrackingService.NEW_ALERTA";
+    public static final String ALERTA = "org.fablabsantiago.smartcities.app.appmobile.Services.TrackingService.ALERTA";
+
+    public static final String TRACKING_STARTED = "org.fablabsantiago.smartcities.app.appmobile.Services.TrackingService.TRACKING_STARTED";
+    public static final String NEW_ROUTE_POINT = "org.fablabsantiago.smartcities.app.appmobile.Services.TrackingService.NEW_ROUTE_POINT";
+    public static final String LOCATION = "org.fablabsantiago.smartcities.app.appmobile.Services.TrackingService.LOCATION";
+    public static final String TRACKING_ENDED = "org.fablabsantiago.smartcities.app.appmobile.Services.TrackingService.TRACKING_ENDED";
 
     private String TAG = TrackingService.class.getSimpleName();
     private Context context = this;
@@ -65,6 +66,8 @@ public class TrackingService extends Service implements
     private LocationRequest mLocationRequest;
     DatabaseHandler baseDatos;
     private Bean bean;
+
+    private LocalBroadcastManager broadcaster;
 
     @Override
     public void onCreate() {
@@ -83,6 +86,8 @@ public class TrackingService extends Service implements
         }
 
         baseDatos = new DatabaseHandler(this);
+
+        broadcaster = LocalBroadcastManager.getInstance(this);
     }
 
     @Override
@@ -129,6 +134,14 @@ public class TrackingService extends Service implements
         //                      numPos, numNeg, duracion, distancia
         baseDatos.endRoute(idRuta, 0, 0, 0, 0);
         Log.i(TAG, "ending route " + idRuta);
+
+        if (bean != null) {
+            bean.disconnect();
+        }
+
+        Intent intent = new Intent();
+        intent.setAction(TrackingService.END_TRACK);
+        broadcaster.sendBroadcast(intent);
     }
 
     /********** Custom - Non Service - Methods  **********/
@@ -146,6 +159,9 @@ public class TrackingService extends Service implements
 
         String date = (new SimpleDateFormat("dd/MM/yyyy")).format(new Date());
         String hour = (new SimpleDateFormat("HH:mm:ss")).format(new Date());
+
+        Log.i(TAG, "Tiempo, date: " + date + ", hour: " + hour);
+        // Log: 'I/TrackingService: Tiempo, date: 19/01/2017, hour: 16:49:53'
 
         //TODO: guardar ruta con nombre correspondiente.
 
@@ -167,48 +183,84 @@ public class TrackingService extends Service implements
         {
             @Override
             public void onConnected() {
-
-                Log.i("MainActivity", "connected to '" + bean.getDevice().getName());
+                Log.i(TAG, "connected to '" + bean.getDevice().getName());
                 bean.readTemperature(new Callback<Integer>()
                 {
                     @Override
                     public void onResult(Integer temp) {
                         Toast.makeText(context, bean.getDevice().getName() + " temp = " + Integer.toString(temp) + "°C", Toast.LENGTH_SHORT).show();
-                        Log.i("MainActivity", "onConnected," + bean.getDevice().getName() + "temp = " + Integer.toString(temp) + "°C");
+                        Log.i(TAG, "onConnected," + bean.getDevice().getName() + "temp = " + Integer.toString(temp) + "°C");
                     }
                 });
+
+                Intent intent = new Intent();
+                intent.putExtra(TrackingService.BEAN, bean);
+                intent.setAction(TrackingService.BEAN_CONNECTED);
+                broadcaster.sendBroadcast(intent);
             }
 
             @Override
             public void onConnectionFailed() {
-                Log.i("MainActivity", "BeanListener.onConnectionFailed");
+                Log.i(TAG, "BeanListener.onConnectionFailed");
             }
 
             @Override
             public void onDisconnected() {
-                Log.i("MainActivity", "BeanListener.onDisconnected");
+                Log.i(TAG, "BeanListener.onDisconnected");
+
+                Intent intent = new Intent();
+                intent.setAction(TrackingService.BEAN_DISCONNECTED);
+                broadcaster.sendBroadcast(intent);
             }
 
             @Override
             public void onSerialMessageReceived(byte[] data) {
-                Log.i("MainActivity", "BeanListener.onSerialMessageReceived");
+                Log.i(TAG, "BeanListener.onSerialMessageReceived");
                 //Toast.makeText(context, "serial msg received", Toast.LENGTH_SHORT).show();
-                Integer dataLength = data.length;
-                if (dataLength != 1) {
-                    // ¿Hay que revisar cuando el length puede ser 0?
-                    Log.i("MainActivity", "BeanListener message length: " + Integer.toString(dataLength));
-                    char[] dataChar = new char[dataLength];
-                    //byte b;
-                    for (int i = 0; i < dataLength; i++) {
-                        dataChar[i] = (char) data[i];
+
+                if (mGoogleApiClient.isConnected()) {
+                    Integer dataLength = data.length;
+                    if (dataLength > 1) {
+                        // Get vote
+                        Log.i(TAG, "BeanListener message length: " + Integer.toString(dataLength));
+                        char[] dataChar = new char[dataLength];
+                        for (int i = 0; i < dataLength; i++) {
+                            dataChar[i] = (char) data[i];
+                        }
+                        String msg = new String(dataChar);
+
+                        Log.i(TAG, "BeanListener msg: " + msg);
+                        Toast.makeText(context, "Serial msg: " + msg, Toast.LENGTH_SHORT).show();
+
+                        boolean vote = msg.contains("Pos");
+
+                        // Get location
+                        Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+
+                        // Get time
+                        String date = (new SimpleDateFormat("dd/MM/yyyy")).format(new Date());
+                        String hour = (new SimpleDateFormat("HH:mm:ss")).format(new Date());
+
+                        // Create Alerta
+                        Alerta alerta = new Alerta(
+                                0, vote,
+                                location.getLatitude(), location.getLongitude(),
+                                null,
+                                hour, date,
+                                null, null,
+                                idRuta, 0, "pendiente");
+
+                        // Save alerta in BD
+                        baseDatos.newAlerta(alerta);
+
+                        Intent intent = new Intent();
+                        intent.putExtra(TrackingService.ALERTA, alerta);
+                        intent.setAction(TrackingService.NEW_ALERTA);
+                        broadcaster.sendBroadcast(intent);
+
+                    } else {
+                        //Pensar que hacer con lo CR LF - \r\n
                     }
-                    String msg = new String(dataChar);
-                    Log.i("MainActivity", "BeanListener message content: " + msg);
-
-                    Toast.makeText(context, "Serial msg: " + msg, Toast.LENGTH_SHORT).show();
-
-                } else {
-                    //Pensar que hacer con lo CR LF - \r\n
                 }
             }
 
@@ -239,6 +291,10 @@ public class TrackingService extends Service implements
         Log.i("EnRutaTrackingService","onConnected - in");
         createLocationRequest();
         startLocationUpdates();
+
+        Intent intent = new Intent();
+        intent.setAction(TrackingService.TRACKING_STARTED);
+        broadcaster.sendBroadcast(intent);
     }
 
     protected void createLocationRequest() {
@@ -279,6 +335,11 @@ public class TrackingService extends Service implements
         Log.i(TAG,"onLocationChanged, " + location.toString());
         Toast.makeText(this, location.toString(),Toast.LENGTH_SHORT).show();
 
-        //TODO: implement broadcast for the EnRutaActivity to receive and plot track in real time
+        // TODO: agregar tiempo de cada punto al GPX, es decir, a esto.
+
+        Intent intent = new Intent();
+        intent.putExtra(TrackingService.LOCATION, location);
+        intent.setAction(TrackingService.NEW_ROUTE_POINT);
+        broadcaster.sendBroadcast(intent);
     }
 }

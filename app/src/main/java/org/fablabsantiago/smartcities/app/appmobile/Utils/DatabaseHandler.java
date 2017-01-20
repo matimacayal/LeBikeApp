@@ -242,10 +242,16 @@ public class DatabaseHandler extends SQLiteOpenHelper
     /*------------------------------------------------------*/
     /*----------------------- Alertas ----------------------*/
     public void newAlerta(Alerta alerta) {
+        //Genera una nueva id para la alerta
+        int alertaId = alerta.getId();
+        if (alertaId == 0) {
+            alertaId = getLastAlertaId() + 1;
+        }
+
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(TA_ID         , alerta.getId());
+        values.put(TA_ID         , alertaId);
         values.put(TA_POSNEG     , (alerta.getPosNeg()) ? 1:0);
         values.put(TA_LATITUDE   , alerta.getLat());
         values.put(TA_LONGITUDE  , alerta.getLng());
