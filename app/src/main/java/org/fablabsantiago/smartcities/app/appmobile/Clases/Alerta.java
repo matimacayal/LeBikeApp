@@ -42,8 +42,8 @@ public class Alerta implements Parcelable{
         idRuta = cursor.getInt(9);
         version = cursor.getInt(10);
         estado = cursor.getString(11);
-
     }
+
     public Alerta(int _id, boolean pn, double _lat, double _lng, String _tA, String _hora, String _fecha,
                   String _titulo, String _desc, int _idRuta, int _version, String _estado) {
         id = _id;

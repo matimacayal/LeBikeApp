@@ -126,8 +126,8 @@ public class AlertaEditDialog extends DialogFragment
                     break;
             }
         } else {
-            DateFormat date = new SimpleDateFormat("dd/MM/yy");
-            DateFormat hour = new SimpleDateFormat("HH:mm");
+            DateFormat date = new SimpleDateFormat("yyyy-MM-dd");
+            DateFormat hour = new SimpleDateFormat("HH:mm:ss");
             String dateText =  date.format(new Date());
             String hourText = hour.format(new Date());
             fecha.setText(dateText);

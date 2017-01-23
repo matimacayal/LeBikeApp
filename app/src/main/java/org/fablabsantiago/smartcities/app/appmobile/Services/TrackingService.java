@@ -37,7 +37,6 @@ public class TrackingService extends Service implements
         LocationListener
 {
     public static final String START_TRACK = "org.fablabsantiago.smartcities.app.appmobile.Services.TrackingService.START_TRACK";
-    public static final String END_TRACK = "org.fablabsantiago.smartcities.app.appmobile.Services.TrackingService.END_TRACK";
     public static final String CONNECT_BLE = "org.fablabsantiago.smartcities.app.appmobile.Services.TrackingService.CONNECT_BLE";
     public static final String BEAN = "org.fablabsantiago.smartcities.app.appmobile.Services.TrackingService.BEAN";
 
@@ -140,7 +139,7 @@ public class TrackingService extends Service implements
         }
 
         Intent intent = new Intent();
-        intent.setAction(TrackingService.END_TRACK);
+        intent.setAction(TrackingService.TRACKING_ENDED);
         broadcaster.sendBroadcast(intent);
     }
 
@@ -157,7 +156,10 @@ public class TrackingService extends Service implements
         idRuta = baseDatos.getLastRutasId() + 1;
         Log.i(TAG,"idDestino: " + String.valueOf(idDestino) + ", idRuta: " + String.valueOf(idRuta));
 
-        String date = (new SimpleDateFormat("dd/MM/yyyy")).format(new Date());
+        // String date = (new SimpleDateFormat("dd/MM/yyyy")).format(new Date());
+        // String hour = (new SimpleDateFormat("HH:mm:ss")).format(new Date());
+
+        String date = (new SimpleDateFormat("yyyy-MM-dd")).format(new Date());
         String hour = (new SimpleDateFormat("HH:mm:ss")).format(new Date());
 
         Log.i(TAG, "Tiempo, date: " + date + ", hour: " + hour);
@@ -169,6 +171,8 @@ public class TrackingService extends Service implements
         baseDatos.startRoute(idRuta, idDestino, "generic_track", hour, date);
 
         mGoogleApiClient.connect();
+
+
     }
 
     private void connectToBean(Intent intent) {
@@ -238,16 +242,16 @@ public class TrackingService extends Service implements
                         Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
 
                         // Get time
-                        String date = (new SimpleDateFormat("dd/MM/yyyy")).format(new Date());
+                        String date = (new SimpleDateFormat("yyyy-MM-dd")).format(new Date());
                         String hour = (new SimpleDateFormat("HH:mm:ss")).format(new Date());
 
                         // Create Alerta
                         Alerta alerta = new Alerta(
                                 0, vote,
                                 location.getLatitude(), location.getLongitude(),
-                                null,
+                                null, // tipo de alerta
                                 hour, date,
-                                null, null,
+                                null, null, // titulo, descripción
                                 idRuta, 0, "pendiente");
 
                         // Save alerta in BD

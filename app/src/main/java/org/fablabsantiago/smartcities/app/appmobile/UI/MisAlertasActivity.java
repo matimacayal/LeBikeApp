@@ -123,66 +123,66 @@ public class MisAlertasActivity extends AppCompatActivity implements
                 baseDatos.newAlerta(new Alerta(
                         2010, false, -33.450276, -70.627628,
                         "auto",
-                        "12:56", "20/09/2016",
+                        "22:22:21", "2017-01-20",
                         "Cruce de autos imprudentes",
                         "Casi salgo volando por un auto que se precipito con mi dedo chico",
                         3010, 0, "completa"));
                 baseDatos.newAlerta(new Alerta(
                         0, true, -33.444446, -70.628695,
                         "vias",
-                        "16:44", "26/09/2016",
+                        "22:22:22", "2017-01-20",
                         "Nueva ciclovia",
                         "esta super choriflai me encanta para venir cno mis amigos de la prepa",
                         3010, 0, "pendiente"));
                 baseDatos.newAlerta(new Alerta(
                         0, false, -33.451013, -70.629386,
                         "peat",
-                        "13:32", "13/08/2016",
+                        "22:22:23", "2017-01-20",
                         "Peaton qlo",
                         "Que wea se cree el zarpao se te cruza y na así nomá",
                         3010, 0, "pendiente"));
                 baseDatos.newAlerta(new Alerta(
                         0, false, -33.452174, -70.626191,
                         "auto",
-                        "01:45", "19/08/2016",
+                        "22:22:24", "2017-01-20",
                         "Muchas micros",
                         "Ando todo nervioso por culpa de todas las micros",
                         3010, 0, "pendiente"));
                 baseDatos.newAlerta(new Alerta(
                         0, true, -33.446737, -70.630335,
                         "mant",
-                        "14:07", "07/09/2016",
+                        "22:22:25", "2017-01-20",
                         "Buen taller de bicis",
                         "Justo se me pincho la rueda por acá cerca y pase a parcharla",
                         3010, 0, "completa"));
                 baseDatos.newAlerta(new Alerta(
                         0, true, -33.446978, -70.628538,
                         "otro",
-                        "20:00", "20/09/2016",
+                        "22:22:26", "2017-01-20",
                         "Harta vida nocturna",
                         "Esta bueno, hay artos bares y pubs con estacionamiento para bicis",
-                        3010, 0, "completa"));
+                        3011, 0, "completa"));
                 baseDatos.newAlerta(new Alerta(
                         0, true, -33.446057, -70.630664,
                         "vege",
-                        "12:32", "14/09/2016",
+                        "22:22:27", "2017-01-20",
                         "Rica calzada con arboles",
                         "Agradable circular por esta área",
-                        3010, 0, "pendiente"));
+                        3011, 0, "pendiente"));
                 baseDatos.newAlerta(new Alerta(
                         0, false, -33.452373, -70.628868,
                         "peat",
-                        "11:26", "18/09/2016",
+                        "22:22:28", "2017-01-20",
                         "Cruce de muchos peatones",
                         "Es algo molesto poder cruzar a veces",
-                        3010, 0, "completa"));
+                        3011, 0, "completa"));
                 baseDatos.newAlerta(new Alerta(
                         0, false, -33.448125, -70.630219,
                         "vege",
-                        "10:40", "17/09/2016",
+                        "22:22:29", "2017-01-20",
                         "Arbol molesto",
                         "Arbol se asoma hacía la calle y molesta el paso",
-                        3010, 0, "pendiente"));
+                        3011, 0, "pendiente"));
             }
         }
 

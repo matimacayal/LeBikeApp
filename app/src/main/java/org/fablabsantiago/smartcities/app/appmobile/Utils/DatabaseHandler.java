@@ -292,6 +292,11 @@ public class DatabaseHandler extends SQLiteOpenHelper
         return db.delete(ALERTAS_TABLE, TA_ID + " = " + Integer.toString(id), null) > 0;
     }
 
+    public boolean deleteAlertasByRouteId(int routeId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        return db.delete(ALERTAS_TABLE, TA_IDRUTA + " = " + Integer.toString(routeId), null) > 0;
+    }
+
     /*----------------------------------------------------------------------------------------------------*/
     /*-------------------------------------------- Leer Datos --------------------------------------------*/
     /*----------------------------------------------------------------------------------------------------*/

@@ -1,6 +1,7 @@
 package org.fablabsantiago.smartcities.app.appmobile.UI;
 
 import android.Manifest;
+import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
@@ -12,6 +13,8 @@ import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -33,6 +36,12 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
@@ -53,6 +62,7 @@ import com.punchthrough.bean.sdk.BeanDiscoveryListener;
 import com.punchthrough.bean.sdk.BeanManager;
 
 import org.fablabsantiago.smartcities.app.appmobile.Services.TrackingService;
+import org.fablabsantiago.smartcities.app.appmobile.Services.UploadAlertasService;
 import org.fablabsantiago.smartcities.app.appmobile.Utils.DatabaseHandler;
 import org.fablabsantiago.smartcities.app.appmobile.UI.Fragments.EnRutaAuxiliaryBottomBar;
 import org.fablabsantiago.smartcities.app.appmobile.Utils.GPX;
@@ -60,6 +70,9 @@ import org.fablabsantiago.smartcities.app.appmobile.Clases.Alerta;
 import org.fablabsantiago.smartcities.app.appmobile.Clases.Destino;
 import org.fablabsantiago.smartcities.app.appmobile.R;
 import org.fablabsantiago.smartcities.app.appmobile.Clases.Ruta;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -163,6 +176,7 @@ public class EnRutaActivity extends AppCompatActivity implements
             @Override
             public void onReceive(Context context, Intent intent) {
                 Log.i(TAG, "Broadcast received.");
+                Log.i(TAG, "package: " + this);
                 String action = intent.getAction();
                 switch(action) {
                     case TrackingService.BEAN_CONNECTED:
@@ -261,14 +275,27 @@ public class EnRutaActivity extends AppCompatActivity implements
             File file = new File(context.getFilesDir(), Integer.toString(baseDatos.getLastRutasId()) + ".gpx");
             GPX.writePath(file, Integer.toString(baseDatos.getLastRutasId()), routePoints);
             Log.i("EnRutaActivity", "saved file: " + file.toString());
+
+            uploadNewAlertas();
         } else {
-            baseDatos.deleteRoute(baseDatos.getLastRutasId());
+            int idRuta = baseDatos.getLastRutasId();
+            baseDatos.deleteRoute(idRuta);
+            baseDatos.deleteAlertasByRouteId(idRuta);
         }
 
         baseDatos.eraseTrackPoints();
 
         boolean trackingState = false;
         startTrackResponseToAuxFragment(trackingState);
+    }
+
+    protected void uploadNewAlertas() {
+        int idRuta = baseDatos.getLastRutasId();
+
+        Intent intent = new Intent(this, UploadAlertasService.class);
+        intent.setAction(UploadAlertasService.UPLOAD_BY_TRACK);
+        intent.putExtra(UploadAlertasService.TRACK_ID, idRuta);
+        startService(intent);
     }
 
     @Override
