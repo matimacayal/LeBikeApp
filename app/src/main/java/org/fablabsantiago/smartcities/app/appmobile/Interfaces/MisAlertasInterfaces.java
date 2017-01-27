@@ -11,7 +11,7 @@ public class MisAlertasInterfaces
 
     public interface  AlertaDialogListener {
         void onCloseClick();
-        void onMostrarMapa();
+        void onMostrarMapa(Alerta alerta);
         void onAgregarAlerta(Alerta alerta, String action);
         void onEliminarAlerta(int id);
     }

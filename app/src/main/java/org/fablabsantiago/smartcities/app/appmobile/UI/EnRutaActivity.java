@@ -13,6 +13,7 @@ import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.support.annotation.NonNull;
@@ -56,6 +57,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.punchthrough.bean.sdk.Bean;
 import com.punchthrough.bean.sdk.BeanDiscoveryListener;
@@ -100,7 +102,9 @@ public class EnRutaActivity extends AppCompatActivity implements
     private LatLng defaultLatLng;
 
     private GoogleMap mMap;
-    private List<Ruta> rutasADestino;
+    private List<Ruta> rutas;
+    private List<Polyline> mapRutas;
+    private Map<Ruta, Polyline> vladimirPutin;
     private List<Alerta> alertas;
     private List<Marker> mapAlertas;
     private Map<Marker, Alerta> angelaMerkel;
@@ -151,7 +155,9 @@ public class EnRutaActivity extends AppCompatActivity implements
                     .addApiIfAvailable(LocationServices.API)
                     .build();
         }
-        rutasADestino = new ArrayList<Ruta>();
+        rutas = new ArrayList<Ruta>();
+        mapRutas = new ArrayList<Polyline>();
+        vladimirPutin = new HashMap<Ruta, Polyline>();
         alertas = new ArrayList<Alerta>();
         mapAlertas = new ArrayList<Marker>();
         angelaMerkel = new HashMap<Marker, Alerta>();
@@ -256,7 +262,7 @@ public class EnRutaActivity extends AppCompatActivity implements
 
     protected void onTrackingStarted() {
         boolean trackingState = true;
-        startTrackResponseToAuxFragment(trackingState);
+        startTrackResponseToAuxFragment(trackingState, destino);
     }
 
     protected void onNewRoutePoint(Intent intent) {
@@ -286,7 +292,7 @@ public class EnRutaActivity extends AppCompatActivity implements
         baseDatos.eraseTrackPoints();
 
         boolean trackingState = false;
-        startTrackResponseToAuxFragment(trackingState);
+        startTrackResponseToAuxFragment(trackingState, destino);
     }
 
     protected void uploadNewAlertas() {
@@ -382,8 +388,24 @@ public class EnRutaActivity extends AppCompatActivity implements
         }
     }
 
-    protected void startTrackResponseToAuxFragment(boolean trackngState) {
-        auxiliarBottomFragment.startTrackResponse(trackngState);
+    @Override
+    public void highlightRoute(Ruta ruta) {
+        if (vladimirPutin == null)
+            return;
+
+        if (vladimirPutin.isEmpty())
+            return;
+
+        for (Polyline polyline : vladimirPutin.values()) {
+            polyline.setColor(Color.parseColor("#80acacac"));
+        }
+
+        Polyline line = vladimirPutin.get(ruta);
+        line.setColor(Color.parseColor("#80ec903a"));
+    }
+
+    protected void startTrackResponseToAuxFragment(boolean trackngState, Destino ddestino) {
+        auxiliarBottomFragment.startTrackResponse(trackngState, ddestino);
     }
 
     @Override
@@ -437,17 +459,19 @@ public class EnRutaActivity extends AppCompatActivity implements
             alertas = baseDatos.getAlertas();
         }
         if (destino != null) {
-            if (rutasADestino.isEmpty()) {
-                rutasADestino = baseDatos.getRoutesByDestId(destinationId);
-                Log.i("EnRutaActivity", "loaded rutas a destino, cant: " + Integer.toString(rutasADestino.size()));
+            if (rutas.isEmpty()) {
+                rutas = baseDatos.getRoutesByDestId(destinationId);
+                Log.i("EnRutaActivity", "loaded rutas a destino, cant: " + Integer.toString(rutas.size()));
             }
-            auxiliarBottomFragment.destinoRutas(rutasADestino);
+            auxiliarBottomFragment.destinoRutas(rutas);
         }
 
         /*---------- Mapa ----------*/
         isLocationAvailableAndStoreIt();
         if (destino != null) {
-            destinoLatLng = new LatLng(destino.getLatitude(), destino.getLongitude());
+            if ((destino.getLatitude() != 0) && (destino.getLongitude() != 0)) {
+                destinoLatLng = new LatLng(destino.getLatitude(), destino.getLongitude());
+            }
         }
         //mCurrentLocation = new Location("");
         //mCurrentLocation.setLatitude(-33.449455);
@@ -529,6 +553,13 @@ public class EnRutaActivity extends AppCompatActivity implements
             }
         }
 
+        if (intentAction.equals("SEE_ALERTA_ACTION")) {
+            Alerta alerta = getIntent().getParcelableExtra("ALERTA");
+            if (alerta != null) {
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(alerta.getLatLng(), 17));
+            }
+        }
+
         /*--------------- Verify if points already drawn ---------------*/
         /*--------------------------------------------------------------*/
         //Verify if we're reloading the map, in order not to redefine and reconfigure old markers
@@ -540,7 +571,7 @@ public class EnRutaActivity extends AppCompatActivity implements
 
         /*---------------- Elementos Gráficos Extra ----------------*/
         /*----------------------------------------------------------*/
-        if (destino != null) {
+        if (destinoLatLng != null) {
             mMap.addMarker(new MarkerOptions()
                     .position(destinoLatLng)
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker_stop)));
@@ -564,13 +595,28 @@ public class EnRutaActivity extends AppCompatActivity implements
         Log.i("EnRutaActivity","dibujando " + alertas.size() + " alertas");
         for (Alerta alerta : alertas) {
             Log.i("EnRutaActivity", "alerta: " + alerta.getTitulo() + ", id:" + alerta.getId());
-            BitmapDescriptor posNegIcon = (alerta.getPosNeg()) ?
-                    BitmapDescriptorFactory.fromResource(R.drawable.marker_positive)
-                    : BitmapDescriptorFactory.fromResource(R.drawable.marker_negative);
+            String vote = (alerta.getPosNeg()) ? "pos":"neg";
+            String status = (alerta.getEstado().equals("pendiente"))? "incompleta" : "completa";
+                    //BitmapDescriptorFactory.fromResource(R.drawable.marker_positive)
+                    //: BitmapDescriptorFactory.fromResource(R.drawable.marker_negative);
+            String vote_status = vote + "_" + status;
+
+            int markerIconRes = R.drawable.marker_neutral;
+            switch(vote_status) {
+                case "pos_completa": markerIconRes = R.drawable.marker_positive; break;
+                case "neg_completa": markerIconRes = R.drawable.marker_negative; break;
+                case "pos_incompleta": markerIconRes = R.drawable.marker_positive_incomplete; break;
+                case "neg_incompleta": markerIconRes = R.drawable.marker_negative_incomplete; break;
+                default:
+                    Log.i(TAG, "invalid marker type for alerta");
+                    break;
+            }
+
+            BitmapDescriptor markerIcon = BitmapDescriptorFactory.fromResource(markerIconRes);
 
             Marker point = mMap.addMarker( new MarkerOptions()
                     .position(alerta.getLatLng())
-                    .icon(posNegIcon));
+                    .icon(markerIcon));
 
             // Evaluar bien como hacer esto, ya que necesito tener un relación entre
             // el marker y su respectiva alerta.
@@ -581,14 +627,20 @@ public class EnRutaActivity extends AppCompatActivity implements
 
         /*--------------- Dibujo de rutas a destino ----------------*/
         /*----------------------------------------------------------*/
-        for (Ruta ruta : rutasADestino) {
+        for (Ruta ruta : rutas) {
             Log.i("EnRutaActivity", "ruta: " + ruta.getName() + "id: " + Integer.toString(ruta.getId()));
-            mMap.addPolyline(new PolylineOptions()
+            Polyline line = mMap.addPolyline(new PolylineOptions()
                     .width((float) 10.0)
                     .color(Color.parseColor("#80ec903a"))
                     .addAll(ruta.getTrack(this, ruta.getId()))
             );
+
+            mapRutas.add(line);
+            vladimirPutin.put(ruta, line);
         }
+
+        if (!rutas.isEmpty())
+            highlightRoute(rutas.get(0));
 
         Log.i("EnRutaACtivity","las ruta id: " + baseDatos.getLastRutasId());
 
@@ -622,7 +674,41 @@ public class EnRutaActivity extends AppCompatActivity implements
                     addAlertaIntent.putExtra("NEW_ALERTA_LATITUDE", marker.getPosition().latitude);
                     addAlertaIntent.putExtra("NEW_ALERTA_LONGITUDE", marker.getPosition().longitude);
                     startActivity(addAlertaIntent);
+                } else {
+                    final Alerta alerta = angelaMerkel.get(marker);
+
+                    Log.i(TAG, "alerta.id: " + alerta.getId() +
+                            ", vote: " + alerta.getPosNeg() +
+                            ", latLng: " + alerta.getLatLng().toString() +
+                            ", tipo: " + alerta.getTipoAlerta() +
+                            ", hora: " + alerta.getHora() +
+                            ", fecha: " + alerta.getFecha() +
+                            ", titulo: " + alerta.getTitulo());
+                    Log.i(TAG, "alerta.isComplete(): " + alerta.isComplete());
+
+                    final LinearLayout container = (LinearLayout) findViewById(R.id.enRutaLinearLayoutContainer);
+                    final Snackbar snackbar = Snackbar.make(container, alerta.isComplete(), Snackbar.LENGTH_INDEFINITE)
+                            .setAction("EDITAR", new View.OnClickListener()
+                            {
+                                @Override
+                                public void onClick(View v) {
+                                    Log.i(TAG, "alerta:" + alerta.getId() + ", vote:" + alerta.getPosNeg());
+                                    Intent intent = new Intent(context, MisAlertasActivity.class);
+                                    intent.setAction("EDIT_ALERTA");
+                                    intent.putExtra("ALERTA_TO_EDIT", alerta);
+                                    startActivity(intent);
+                                }
+                            });
+                    snackbar.show();
+
+                    (new Handler()).postDelayed(new Runnable(){
+                        public void run(){
+                            Log.i(TAG, "Runnable:run - in");
+                            snackbar.dismiss();
+                        }
+                    }, 5000);
                 }
+
                 return false;
             }
         });

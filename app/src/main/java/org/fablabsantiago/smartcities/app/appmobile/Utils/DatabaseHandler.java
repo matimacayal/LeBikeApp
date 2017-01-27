@@ -204,7 +204,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
         db.insert(RUTAS_TABLE, null, values);
     }
 
-    public void endRoute(int rutaId, int numPos, int numNeg, int duracion, float distancia) {
+    public void endRoute(int rutaId, int numPos, int numNeg, long duracion, float distancia) {
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
@@ -331,7 +331,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
 
         Cursor cursor = db.rawQuery(query, null);
 
-        int biggestSeqNum = -1;
+        int biggestSeqNum = 0;
         if(cursor.moveToFirst()) {
             biggestSeqNum = cursor.getInt(0);
         }
@@ -392,7 +392,8 @@ public class DatabaseHandler extends SQLiteOpenHelper
                                  + TD_ID + ", "
                                  + TD_LATITUDE + ", "
                                  + TD_LONGITUDE +
-                       " FROM " + DESTINOS_TABLE;
+                       " FROM " + DESTINOS_TABLE +
+                       " ORDER BY " + TD_ID + " ASC";
 
         Cursor cursor = db.rawQuery(query, null);
 
@@ -431,7 +432,8 @@ public class DatabaseHandler extends SQLiteOpenHelper
 
         Cursor cursor = db.rawQuery(query, null);
 
-        int biggestDestId = -1;
+        // id #100.001 is for 'destino libre'
+        int biggestDestId = 100001;
         if(cursor.moveToFirst()) {
             biggestDestId = cursor.getInt(0);
         }
@@ -479,7 +481,9 @@ public class DatabaseHandler extends SQLiteOpenHelper
     public List<Ruta> getRoutesByDestId(int destId) {
         SQLiteDatabase db = this.getReadableDatabase();
 
-        String query = "SELECT * FROM " + RUTAS_TABLE + " WHERE " + TRS_DESTID + " = " + Integer.toString(destId);
+        String query = "SELECT * FROM " + RUTAS_TABLE +
+                " WHERE " + TRS_DESTID + " = " + Integer.toString(destId) +
+                " ORDER BY " + TRS_ID + " ASC";
 
         Cursor cursor = db.rawQuery(query, null);
 
@@ -501,7 +505,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
 
         Cursor cursor = db.rawQuery(query, null);
 
-        int biggestId = -1;
+        int biggestId = 300000;
         if(cursor.moveToFirst()) {
             biggestId = cursor.getInt(0);
         }
@@ -549,6 +553,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
 
         return alertas;
     }
+
     public List<Alerta> getAlertasByIdRuta(int idruta) {
         SQLiteDatabase db = this.getReadableDatabase();
 
@@ -574,7 +579,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
 
         Cursor cursor = db.rawQuery(query, null);
 
-        int biggestId = -1;
+        int biggestId = 200000;
         if(cursor.moveToFirst()) {
             biggestId = cursor.getInt(0);
         }

@@ -44,6 +44,15 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".UI.LoginActivity"
+                  android:label="Login LeBike"
+                  android:theme="@style/LeBikeTheme"
+                  android:parentActivityName=".UI.LeBikeActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".UI.LeBikeActivity"/>
+        </activity>
+
         <activity
             android:name=".UI.MisDestinosActivity"
             android:label="Mis Destinos"

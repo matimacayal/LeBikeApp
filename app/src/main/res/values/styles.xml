@@ -32,7 +32,13 @@
     </style>
 
     <style name="StartTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    </style>
 
+    <!-- For custom DialogFragment's -->
+    <style name="CustomDialog" parent="Theme.AppCompat.Light.Dialog">
+        <item name="android:windowBackground">@drawable/shape_edit_dialog_fragment_background</item>
+        <item name="android:backgroundDimEnabled">false</item>
+        <item name="android:windowNoTitle">true</item>
     </style>
 
 </resources>

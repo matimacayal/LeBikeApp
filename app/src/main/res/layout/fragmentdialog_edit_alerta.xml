@@ -24,13 +24,12 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="25"
                 android:orientation="vertical">
                 <TextView
                     android:id="@+id/edit_alerta_dialog_fecha"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="22/22/22"
+                    android:text="2222-22-22"
                     android:textSize="12sp"
                     android:textColor="#000000"/>
                 <View
@@ -102,13 +101,15 @@
             android:layout_height="50dp"
             android:textSize="11sp"
             android:hint="Título"
-            android:gravity="bottom"/>
+            android:gravity="bottom"
+            android:visibility="visible"/>
 
         <!-- Descripción -->
         <EditText
             android:id="@+id/edit_alerta_dialog_descripcion"
             android:layout_width="match_parent"
-            android:layout_height="70dp"
+            android:layout_height="50dp"
+            android:scrollbarStyle="insideInset"
             android:textSize="11sp"
             android:hint="Cuéntanos un poco"
             android:gravity="bottom"/>

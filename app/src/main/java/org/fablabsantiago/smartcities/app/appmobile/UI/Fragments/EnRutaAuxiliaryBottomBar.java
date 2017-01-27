@@ -10,11 +10,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
 ;
 
 import org.fablabsantiago.smartcities.app.appmobile.Clases.Destino;
 import org.fablabsantiago.smartcities.app.appmobile.R;
 import org.fablabsantiago.smartcities.app.appmobile.Clases.Ruta;
+import org.fablabsantiago.smartcities.app.appmobile.Services.TrackingService;
+import org.fablabsantiago.smartcities.app.appmobile.Utils.ServiceUtils;
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,15 +32,19 @@ public class EnRutaAuxiliaryBottomBar extends Fragment
     Context activityContext;
 
     private LinearLayout bottomBarView;
-    private List<Ruta> rutasADestino;
 
     SharedPreferences leBikePrefs;
     private boolean bTrackingRoute;
 
     private BottomBarListener bottomBarListener;
 
+    private List<Ruta> listaRutas;
+    private int numRutas;
+    private int rutaActual;
+
     public interface BottomBarListener {
         void startTrack(boolean trackingState);
+        void highlightRoute(Ruta ruta);
     }
 
     public void setBottomBarListener(BottomBarListener bottomBarListener) {
@@ -45,7 +55,8 @@ public class EnRutaAuxiliaryBottomBar extends Fragment
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        rutasADestino = new ArrayList<Ruta>();
+        listaRutas = new ArrayList<Ruta>();
+        numRutas = 0;
     }
 
     @Override
@@ -61,8 +72,9 @@ public class EnRutaAuxiliaryBottomBar extends Fragment
 
         /*---------- Tracking ----------*/
         leBikePrefs = getActivity().getSharedPreferences("leBikePreferences", MODE_PRIVATE);
-        bTrackingRoute = leBikePrefs.getBoolean("BOOL_TRACKING_ROOT", false);
-        refreshUIOnRouteStarted(bTrackingRoute);
+        bTrackingRoute = leBikePrefs.getBoolean("BOOL_TRACKING_ROOT", false)
+                            && ServiceUtils.isServiceRunning(getActivity(), TrackingService.class);
+        refreshTrackUI(bTrackingRoute);
 
         ImageButton startTrackButton = (ImageButton) bottomBarView.findViewById(R.id.trackRouteButton);
         startTrackButton.setOnClickListener(new View.OnClickListener()
@@ -72,20 +84,56 @@ public class EnRutaAuxiliaryBottomBar extends Fragment
                 bottomBarListener.startTrack(bTrackingRoute);
             }
         });
+
+        TextView rutaText = (TextView) bottomBarView.findViewById(R.id.rutaSeleccionada);
+        rutaText.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view) {
+                LinearLayout infoRuta = (LinearLayout) bottomBarView.findViewById(R.id.routeInfoBottomBar);
+                if (infoRuta.getVisibility() == View.GONE) {
+                    infoRuta.setVisibility(View.VISIBLE);
+                } else {
+                    infoRuta.setVisibility(View.GONE);
+
+                }
+            }
+        });
+
+        ImageButton nextButton = (ImageButton) bottomBarView.findViewById(R.id.nextRouteButton);
+        nextButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v) {
+                routeSelection(+1);
+                refreshRouteUI();
+            }
+        });
+
+        ImageButton previousButton = (ImageButton) bottomBarView.findViewById(R.id.previousRouteButton);
+        previousButton.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v) {
+                routeSelection(-1);
+                refreshRouteUI();
+            }
+        });
     }
 
-    public void startTrackResponse(boolean success) {
+    public void startTrackResponse(boolean success, Destino destino) {
         bTrackingRoute = success;
 
         SharedPreferences.Editor editor = leBikePrefs.edit();
         editor.putBoolean("BOOL_TRACKING_ROOT", bTrackingRoute);
+        if (bTrackingRoute) {
+            editor.putInt("ID_TRACKING_ROOT", destino.getId());
+        } else {
+            editor.remove("ID_TRACKING_ROOT");
+        }
         editor.commit();
 
-        // TODO: El estado del botón bien debe ser actualizado con memoria.
-        // Guardar su estado y establecer su correcto estado al inicar de nuevo la aplicación.
-        //ProgressBar bien = (ProgressBar) findViewById(R.id.goodProgressBar);
-        //bien.setEnabled(!bTrackingRoute);
-        refreshUIOnRouteStarted(bTrackingRoute);
+        refreshTrackUI(bTrackingRoute);
     }
 
     @Override
@@ -109,24 +157,73 @@ public class EnRutaAuxiliaryBottomBar extends Fragment
     }
 
     public void destinoRutas(List<Ruta> rutas) {
-        rutasADestino = rutas;
+        listaRutas = rutas;
+        numRutas = listaRutas.size();
         //TODO: Manejar la visualización de las opciones de rutas
         // y la comunicación de vuelta hacia la actividad para la visualización en el mapa
+
+        if (numRutas < 1)
+            return;
+
+        rutaActual = 1;
+        refreshRouteUI();
     }
 
     /*---------- Tracking ----------*/
-    public void refreshUIOnRouteStarted(boolean trackingRoute) {
+    public void refreshTrackUI(boolean trackingRoute) {
         ImageButton trackRouteButton = (ImageButton) bottomBarView.findViewById(R.id.trackRouteButton);
-        int imageButtonRsc = (trackingRoute) ? R.drawable.ic_directions_on_24dp : R.drawable.rutas;
+        //int imageButtonRsc = (trackingRoute) ? R.drawable.arrow_right_bold_circle_orange : R.drawable.arrow_right_bold_circle;
+        int imageButtonRsc = (trackingRoute) ? R.drawable.play_circle_orange : R.drawable.play_circle_green;
         trackRouteButton.setImageResource(imageButtonRsc);
-
-        //int buttonText = Color.parseColor((trackingRoute) ? "#CCec903a" : "#00000000");
-        //trackRouteButton.setBackgroundColor(buttonText);
-
-        //Button bienButton = (Button) findViewById(R.id.bienButton);
-        //bienButton.setText(String.format(destino.getPositiveHospotNumber()));
-        //Button malButton = (Button) findViewById(R.id.malButton);
-        //bienButton.setText(Integer.toString(destino.getNegativeHospotNumber()));
     }
 
+    public void refreshRouteUI() { //refreshRouteUI(rutaActual, listaRutas);
+        Ruta ruta = listaRutas.get(rutaActual-1);
+
+        TextView cuenta = (TextView) bottomBarView.findViewById(R.id.routeCountTextView);
+        cuenta.setText(i2str(rutaActual) + "/" + i2str(numRutas));
+
+        TextView fecha = (TextView) bottomBarView.findViewById(R.id.routeDateTextView);
+        TextView hora = (TextView) bottomBarView.findViewById(R.id.routeHourTextView);
+        fecha.setText(ruta.getFecha());
+        hora.setText(ruta.getHora());
+
+        int numPos = ruta.getNumPos();
+        int numNeg = ruta.getNumNeg();
+        int numVotes = numPos + numNeg;
+        int perPos = 0;
+        int perNeg = 0;
+        if (numVotes > 0) {
+            perPos = 100*numPos/(numPos+numNeg);
+            perNeg = 100*numNeg/(numPos+numNeg);
+        }
+
+        TextView poss = (TextView) bottomBarView.findViewById(R.id.posProgressBarText);
+        TextView negs = (TextView) bottomBarView.findViewById(R.id.negProgressBarText);
+        poss.setText(i2str(perPos) + "%");
+        negs.setText(i2str(perNeg) + "%");
+
+        ProgressBar posBar = (ProgressBar) bottomBarView.findViewById(R.id.posProgressBar2);
+        ProgressBar negBar = (ProgressBar) bottomBarView.findViewById(R.id.negProgressBar2);
+        posBar.setProgress(perPos);
+        negBar.setProgress(perNeg);
+
+        bottomBarListener.highlightRoute(ruta);
+    }
+
+
+    /*---------- Utils ----------*/
+    private String i2str(int i) {
+        return Integer.toString(i);
+    }
+
+    private void routeSelection(int i) {
+        rutaActual += i;
+
+        if (rutaActual > numRutas)
+            rutaActual = numRutas;
+
+        if (rutaActual < 1)
+            rutaActual = 1;
+    }
 }

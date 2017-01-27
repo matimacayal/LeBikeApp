@@ -114,7 +114,8 @@
             android:layout_width="@dimen/bottom_bar_buttons_size"
             android:layout_height="@dimen/bottom_bar_buttons_size"
             android:background="@drawable/ic_miperfil"
-            android:textSize="12sp"/>
+            android:textSize="12sp"
+            android:onClick="miPerfil"/>
         <View
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -123,7 +124,8 @@
             android:layout_width="@dimen/bottom_bar_buttons_size"
             android:layout_height="@dimen/bottom_bar_buttons_size"
             android:background="@drawable/ic_misamigos"
-            android:textSize="12sp"/>
+            android:textSize="12sp"
+            android:onClick="misAmigos"/>
     </LinearLayout>
 
 </LinearLayout>

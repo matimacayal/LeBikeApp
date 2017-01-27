@@ -29,12 +29,15 @@ public class MisAlertasAdapter extends ArrayAdapter<Alerta>
         Log.i("MisAlertasAdapter","destinationaweiubfkyu");
         convertView2 = LayoutInflater.from(getContext()).inflate(R.layout.listitem_misalertas, parent2, false);
 
-        //TODO: resizear las imagenes de tipo de alerta. Además ver bien estos ya que los hice
+        //TODO: 1. resizear las imagenes de tipo de alerta. Además ver bien estos ya que los hice
         // a la rápida
-        //TODO: mejorar esta manera de asignar el tipo de alerta y la imagen respectiva.
-        String tipoAlerta = ((alerta.getPosNeg()) ? "pos":"neg") + alerta.getTipoAlerta();
+        //      2. mejorar esta manera de asignar el tipo de alerta y la imagen respectiva.
+        // Cuando una alerta no es de ningún tipo, es del tipo '""'
+        String tipoAlerta = (alerta.getTipoAlerta().equals("")) ? "void":alerta.getTipoAlerta();
+        String votoAlerta = (alerta.getPosNeg()) ? "pos":"neg";
+        String tipoTotalAlerta = votoAlerta + tipoAlerta;
         int resId;
-        switch (tipoAlerta) {
+        switch (tipoTotalAlerta) {
             case "poscicl": resId = R.drawable.ic_positive_ciclovia; break;
             case "posvias": resId = R.drawable.ic_positive_vias; break;
             case "posvege": resId = R.drawable.ic_positive_vegetacion; break;
@@ -49,15 +52,23 @@ public class MisAlertasAdapter extends ArrayAdapter<Alerta>
             case "negauto": resId = R.drawable.ic_negative_autos; break;
             case "negpeat": resId = R.drawable.ic_negative_peatones; break;
             case "negotro": resId = R.drawable.ic_negative_warning; break;
-            default: resId = R.drawable.ic_positive_vegetacion; break;
+            case "posvoid": resId = R.drawable.ic_positive; break;
+            case "negvoid": resId = R.drawable.ic_negative; break;
+            default: resId = R.drawable.ic_add_white_24dp; break;
         }
-        ImageView tipoAlertaIV = (ImageView) convertView2.findViewById(R.id.tipoalerta_itemmisalertas);
-        tipoAlertaIV.setImageResource(resId);
 
+        String tituloText = alerta.getTitulo();
+        if (tituloText.equals("")) {
+            tituloText = "Alerta " + (votoAlerta.equals("pos")?"positiva":"negativa") + ".\nPresionar para editar.";
+        }
+
+        ImageView tipoAlertaIV = (ImageView) convertView2.findViewById(R.id.tipoalerta_itemmisalertas);
         TextView titulo = (TextView) convertView2.findViewById(R.id.titulo_itemmisalertas);
-        titulo.setText("''" + alerta.getTitulo() + "''");
         TextView fecha = (TextView) convertView2.findViewById(R.id.fecha_itemmisalertas);
-        fecha.setText("''" + "hace 3 horas" + "''");
+
+        tipoAlertaIV.setImageResource(resId);
+        titulo.setText(tituloText);
+        fecha.setText("hace 3 horas");
 
         return convertView2;
     }

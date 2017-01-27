@@ -12,12 +12,14 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.fablabsantiago.smartcities.app.appmobile.Clases.Alerta;
 import org.fablabsantiago.smartcities.app.appmobile.Interfaces.MisAlertasInterfaces.AlertaDialogListener;
 import org.fablabsantiago.smartcities.app.appmobile.R;
 
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -58,6 +60,12 @@ public class AlertaEditDialog extends DialogFragment
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setStyle(DialogFragment.STYLE_NORMAL, R.style.CustomDialog);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Si se está editando una alerta existente, esta viene dentro de los argumentos, y se pasa a Alerta
         // Si no, se inicializa una alerta null.
@@ -72,7 +80,7 @@ public class AlertaEditDialog extends DialogFragment
             }
         }
 
-        return inflater.inflate(R.layout.fragmentdialog_edit_alerta, container);
+        return inflater.inflate(R.layout.fragmentdialog_edit_alerta, container, false);
     }
 
     @Override
@@ -105,8 +113,8 @@ public class AlertaEditDialog extends DialogFragment
                 peaton));
 
         if (alerta != null) {
-            fecha.setText(alerta.getFecha());
-            hora.setText(alerta.getHora());
+            fecha.setText(dateFormat(alerta.getFecha()));
+            hora.setText(hourFormat(alerta.getHora()));
             if (alerta.getPosNeg()) {
                 positiva.setAlpha((float) 1.0);
             } else {
@@ -114,16 +122,18 @@ public class AlertaEditDialog extends DialogFragment
             }
             titulo.setText(alerta.getTitulo());
             descripcion.setText(alerta.getDescrption());
-            switch (alerta.getTipoAlerta()) {
-                case "cicl": ciclovia.setAlpha((float) 1.0);    break;
-                case "vias": vias.setAlpha((float) 1.0);        break;
-                case "vege": espacios.setAlpha((float) 1.0);    break;
-                case "mant": mantencion.setAlpha((float) 1.0);  break;
-                case "auto": automoviles.setAlpha((float) 1.0); break;
-                case "peat": peaton.setAlpha((float) 1.0);      break;
-                case "otro": otros.setAlpha((float) 1.0);       break;
-                default:
-                    break;
+            if (alerta.getTipoAlerta() != null) {
+                switch (alerta.getTipoAlerta()) {
+                    case "cicl": ciclovia.setAlpha((float) 1.0);    break;
+                    case "vias": vias.setAlpha((float) 1.0);        break;
+                    case "vege": espacios.setAlpha((float) 1.0);    break;
+                    case "mant": mantencion.setAlpha((float) 1.0);  break;
+                    case "auto": automoviles.setAlpha((float) 1.0); break;
+                    case "peat": peaton.setAlpha((float) 1.0);      break;
+                    case "otro": otros.setAlpha((float) 1.0);       break;
+                    default:
+                        break;
+                }
             }
         } else {
             DateFormat date = new SimpleDateFormat("yyyy-MM-dd");
@@ -178,11 +188,21 @@ public class AlertaEditDialog extends DialogFragment
             }
         });
 
+        camara.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(getActivity(), "Servicio no disponible", Toast.LENGTH_SHORT).show();
+            }
+        });
+
         mostrarMapa.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v) {
-                alertaDialogListener.onMostrarMapa();
+                if (alerta != null) {
+                    alertaDialogListener.onMostrarMapa(alerta);
+                }
             }
         });
 
@@ -284,5 +304,37 @@ public class AlertaEditDialog extends DialogFragment
 
     public void setAlertasDialogListener(AlertaDialogListener alertaDialogListener) {
         this.alertaDialogListener = alertaDialogListener;
+    }
+
+
+
+    public String dateFormat(String date) {
+        SimpleDateFormat inFormat = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat outFormat = new SimpleDateFormat("dd/MM/yyyy");
+
+        String reformattedDate;
+        try {
+            reformattedDate = outFormat.format(inFormat.parse(date));
+        } catch (ParseException e) {
+            e.printStackTrace();
+            reformattedDate = date;
+        }
+
+        return reformattedDate;
+    }
+
+    public String hourFormat(String hour) {
+        SimpleDateFormat inFormat = new SimpleDateFormat("HH:mm:ss");
+        SimpleDateFormat outFormat = new SimpleDateFormat("HH:mm");
+
+        String reformattedHour;
+        try {
+            reformattedHour = outFormat.format(inFormat.parse(hour));
+        } catch (ParseException e) {
+            e.printStackTrace();
+            reformattedHour = hour;
+        }
+
+        return reformattedHour;
     }
 }

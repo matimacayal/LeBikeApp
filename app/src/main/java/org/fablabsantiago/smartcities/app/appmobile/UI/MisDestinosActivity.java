@@ -53,6 +53,8 @@ public class MisDestinosActivity extends AppCompatActivity implements DialogList
         if (listaDestinos.isEmpty()) {
             baseDatos = new DatabaseHandler(this);
             listaDestinos = baseDatos.getDestinations();
+            // Se elimina 'destino libre' para no mostrarlo.
+            listaDestinos.remove(0);
         }
 
         final ListView destinosListView = (ListView) findViewById(R.id.misdestinos_listview);

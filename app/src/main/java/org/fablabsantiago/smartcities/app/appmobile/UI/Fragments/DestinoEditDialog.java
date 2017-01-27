@@ -35,9 +35,15 @@ public class DestinoEditDialog extends DialogFragment
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setStyle(DialogFragment.STYLE_NORMAL, R.style.CustomDialog);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         destinoInfo = getArguments();
-        return inflater.inflate(R.layout.fragmentdialog_edit_destino, container);
+        return inflater.inflate(R.layout.fragmentdialog_edit_destino, container, false);
     }
 
     //TODO: verificar que los campos sean números o letras respectivamente, tambien setear teclado especial para números.

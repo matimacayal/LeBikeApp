@@ -13,10 +13,10 @@ public class Alerta implements Parcelable{
     /* Fields
      *
      */
-    private int     id;
+    private Integer id;
     private Boolean posneg;        // positivo o negativo (1 | 0)
-    private double   lat;          // posición
-    private double   lng;          // ""
+    private double  lat;          // posición
+    private double  lng;          // ""
     private String  tipoAlerta;    // cicl(ovía), vias, vege(tación), mant(ención), auto(s), peat(ones) y otro(s)
     private String  hora;
     private String  fecha;
@@ -76,6 +76,7 @@ public class Alerta implements Parcelable{
 
     protected Alerta(Parcel in) {
         id = in.readInt();
+        posneg = in.readByte() != 0;
         lat = in.readDouble();
         lng = in.readDouble();
         tipoAlerta = in.readString();
@@ -131,22 +132,25 @@ public class Alerta implements Parcelable{
         return estado;
     }
 
+    public void setId(int idd) {
+        id = idd;
+    }
     public void setEstado(String estado_) {
         estado = estado_;
     }
 
     public String isComplete() {
-        boolean com;
-        com = (id > 0) &
+        boolean com =
+                (id != null) &
                 (posneg != null) &
-                (lat > 0) &
-                (lng > 0) &
-                (tipoAlerta != null) &
+                (lat != 0) &
+                (lng != 0) &
+                (!tipoAlerta.equals("")) &
                 (hora != null) &
                 (fecha != null) &
-                (titulo != null) &
-                (description != null) &
-                (version > 0);
+                (!titulo.equals(""));// &
+                //(description != null) &
+                //(version > 0);
         return ((com) ? "completa" : "pendiente");
     }
 
@@ -196,6 +200,7 @@ public class Alerta implements Parcelable{
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(id);
+        dest.writeByte((byte) (posneg ? 1 : 0));
         dest.writeDouble(lat);
         dest.writeDouble(lng);
         dest.writeString(tipoAlerta);

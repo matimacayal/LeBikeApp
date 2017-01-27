@@ -13,6 +13,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import org.fablabsantiago.smartcities.app.appmobile.Clases.Alerta;
+import org.fablabsantiago.smartcities.app.appmobile.Services.UploadAlertasService;
 import org.fablabsantiago.smartcities.app.appmobile.UI.Fragments.AlertaEditDialog;
 import org.fablabsantiago.smartcities.app.appmobile.Utils.DatabaseHandler;
 import org.fablabsantiago.smartcities.app.appmobile.Interfaces.MisAlertasInterfaces;
@@ -26,6 +27,8 @@ public class MisAlertasActivity extends AppCompatActivity implements
         MisAlertasInterfaces.MisAlertasTabListener,
         MisAlertasInterfaces.AlertaDialogListener
 {
+    private String TAG = MisAlertasActivity.class.getSimpleName();
+
     private TabLayout tabLayout;
     private ViewPager viewPager;
 
@@ -57,12 +60,24 @@ public class MisAlertasActivity extends AppCompatActivity implements
         Intent intent = getIntent();
         String action = intent.getAction();
         if (action != null) {
-            if (action.equals("REQUESTING_NEW_ALERTA")) {
-                openAlertasEditDialog(
-                        null,
-                        intent.getDoubleExtra("NEW_ALERTA_LATITUDE", 0),
-                        intent.getDoubleExtra("NEW_ALERTA_LONGITUDE", 0),
-                        intent.getIntExtra("NEW_ALERTA_IDRUTA", -1));
+            switch(action) {
+                case "REQUESTING_NEW_ALERTA":
+                    openAlertasEditDialog(
+                            null,
+                            intent.getDoubleExtra("NEW_ALERTA_LATITUDE", 0),
+                            intent.getDoubleExtra("NEW_ALERTA_LONGITUDE", 0),
+                            intent.getIntExtra("NEW_ALERTA_IDRUTA", -1));
+                    break;
+                case "EDIT_ALERTA":
+                    Alerta alerta = intent.getParcelableExtra("ALERTA_TO_EDIT");
+                    if (alerta == null)
+                        Log.i(TAG, "alerta nula");
+                    Log.i(TAG, "alerta:" + alerta.getId() + ", vote:" + alerta.getPosNeg());
+                    openAlertasEditDialog(alerta, 0, 0, -1);
+                    break;
+                default:
+                    Log.i(TAG, "invalid action");
+                    break;
             }
         }
 
@@ -121,12 +136,13 @@ public class MisAlertasActivity extends AppCompatActivity implements
             if (listaAlertas.isEmpty()) {
                 Log.i("MisAlertasActivity","populating alertas table");
                 baseDatos.newAlerta(new Alerta(
-                        2010, false, -33.450276, -70.627628,
+                        200001, false, -33.450276, -70.627628,
                         "auto",
                         "22:22:21", "2017-01-20",
                         "Cruce de autos imprudentes",
                         "Casi salgo volando por un auto que se precipito con mi dedo chico",
-                        3010, 0, "completa"));
+                        300001, 0, "completa"));
+                /*
                 baseDatos.newAlerta(new Alerta(
                         0, true, -33.444446, -70.628695,
                         "vias",
@@ -146,7 +162,7 @@ public class MisAlertasActivity extends AppCompatActivity implements
                         "auto",
                         "22:22:24", "2017-01-20",
                         "Muchas micros",
-                        "Ando todo nervioso por culpa de todas las micros",
+                        "Ando toldo nervioso por culpa de todas las micros",
                         3010, 0, "pendiente"));
                 baseDatos.newAlerta(new Alerta(
                         0, true, -33.446737, -70.630335,
@@ -183,6 +199,7 @@ public class MisAlertasActivity extends AppCompatActivity implements
                         "Arbol molesto",
                         "Arbol se asoma hacía la calle y molesta el paso",
                         3011, 0, "pendiente"));
+                */
             }
         }
 
@@ -233,12 +250,11 @@ public class MisAlertasActivity extends AppCompatActivity implements
         dialog = new AlertaEditDialog();
         Bundle newAlertaExtras = new Bundle();
         if (alerta != null) {
+            Log.i(TAG, "alerta:" + alerta.getId() + ", vote:" + alerta.getPosNeg());
             newAlertaExtras = alerta.toBundle();
             newAlertaExtras.putString("NEW_ALERTA_ACTION", "EDIT_ALERTA");
         } else {
-            //int alertaId = baseDatos.getLastAlertaId() + 1;
             int alertaId = 0; // Porque ahora al agregar una nueva alerta el id se genera solo.
-            Log.i("MisAlertasActivity","openAlertasEditDialog - last alerta id: " + (alertaId - 1));
             newAlertaExtras.putString("NEW_ALERTA_ACTION","NEW_ALERTA_FROM_MAP");
             newAlertaExtras.putInt("NEW_ALERTA_ID", alertaId);
             newAlertaExtras.putDouble("NEW_ALERTA_LAT", lat);
@@ -263,25 +279,53 @@ public class MisAlertasActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onMostrarMapa() {
+    public void onMostrarMapa(Alerta alerta) {
         Intent mapIntent = new Intent(this, EnRutaActivity.class);
         mapIntent.setAction("SEE_ALERTA_ACTION");
+        mapIntent.putExtra("ALERTA", alerta);
         startActivity(mapIntent);
         // TODO: terminar de implementar esto.
     }
 
     @Override
     public void onAgregarAlerta(Alerta alerta, String action) {
-        if (action.equals("UPDATE_ALERTA")) {
-            Toast.makeText(this, "updating alerta " + alerta.getTitulo(), Toast.LENGTH_SHORT).show();
-            baseDatos.updateAlerta(alerta);
-        } else {
-            Toast.makeText(this, "creating alerta " + alerta.getId(), Toast.LENGTH_SHORT).show();
-            baseDatos.newAlerta(alerta);
+        switch(action) {
+            case "UPDATE_ALERTA":
+                Toast.makeText(this, "updating alerta " + alerta.getTitulo(), Toast.LENGTH_SHORT).show();
+                baseDatos.updateAlerta(alerta);
+                break;
+            case "NEW_ALERTA":
+                // No podemos subir esta alerta ya que puede ser una alerta nueva caso en el cual le faltaría
+                // el id, generado por DatabaseHandler al agregarla a la BD. Entonces nos damos una vueltecilla.
+                alerta.setId(baseDatos.getLastAlertaId() + 1);
+
+                // Aquí puede haber un error pero tendría que haber demasiado timing para el problema. Puede
+                // pasar que justo aquí, una vez que se obtuvo lastAlertaId, y antes de guardar esta alerta,
+                // se agregue una alerta por otro medio (que tendría que ser bluetooth), luego esa alerta
+                // tendría la misma id que esta de acá. Habrían dos alertas con el mismo id.
+                // TODO: para evitar esto, habría que bloquear el agregar nuevas alertas mientras se esté
+                // haciendo un tracking con bluetooth.
+
+                Toast.makeText(this, "creating alerta " + alerta.getId(), Toast.LENGTH_SHORT).show();
+                baseDatos.newAlerta(alerta);
+                break;
+            default:
+                Log.i(TAG, "invalid action");
+                break;
         }
+
         dialog.dismiss();
-        // TODO: se puede evaluar si actualizar o crear alerta en función del id de la alerta devuelto
-        // como se hizo en los destinos.
+
+        Intent intent = new Intent(this, UploadAlertasService.class);
+        intent.setAction(UploadAlertasService.UPLOAD_SINGLE_TRACK);
+        intent.putExtra(UploadAlertasService.ALERTA, alerta);
+        startService(intent);
+
+        Intent intent1 = new Intent(this, MisAlertasActivity.class);
+        intent1.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        overridePendingTransition(0, 0);
+        finish();
+        startActivity(intent1);
     }
 
     @Override

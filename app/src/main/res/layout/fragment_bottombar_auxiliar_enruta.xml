@@ -4,7 +4,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/enRutaBottomInformation"
     android:layout_width="match_parent"
-    android:layout_height="80dp"
+    android:layout_height="wrap_content"
+    android:paddingBottom="4dp"
     android:elevation="8dp"
     android:orientation="horizontal"
     android:gravity="center_vertical"
@@ -15,7 +16,7 @@
         android:layout_width="45dp"
         android:layout_height="45dp"
         android:layout_marginStart="20dp"
-        android:src="@drawable/rutas"
+        android:src="@drawable/arrow_right_bold_circle"
         android:scaleType="fitCenter"
         android:adjustViewBounds="true"
         android:background="#00000000"
@@ -23,95 +24,157 @@
     <View
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_weight="1"/>
-    <ImageButton
-        android:id="@+id/previousRouteButton"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:src="@drawable/ic_keyboard_arrow_down_grey_48dp"
-        android:scaleType="fitCenter"
-        android:background="#00000000"/>
-    <View
-        android:layout_width="0dp"
-        android:layout_height="0dp"
         android:layout_weight="1.2"/>
-    <TextView
-        android:id="@+id/rutaSeleccionada"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Ruta"
-        android:textSize="18sp"
-        android:textIsSelectable="false"
-        android:paddingTop="15dp"
-        android:paddingBottom="15dp"/>
-    <View
+    <LinearLayout
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_weight="1.2"/>
-    <ImageButton
-        android:id="@+id/nextRouteButton"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
-        android:src="@drawable/ic_keyboard_arrow_up_grey_48dp"
-        android:scaleType="fitCenter"
-        android:background="#00000000"/>
-    <View
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_weight="1"/>
-    <FrameLayout
-        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/pos_percentage">
-        <ProgressBar
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="45dp"
-            android:layout_height="45dp"
-            android:progress="100"
-            android:progressDrawable="@drawable/shape_circular_percentage_background"/>
-        <ProgressBar
-            android:id="@+id/posProgressBar2"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="45dp"
-            android:layout_height="45dp"
-            android:progress="65"
-            android:progressDrawable="@drawable/shape_circular_percentage_good"/>
-        <TextView
-            android:id="@+id/posProgressBarPercent2"
+        android:layout_weight="10"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        android:orientation="vertical">
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="65%"
-            android:textColor="#1a917f"/>
-    </FrameLayout>
-    <View
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_weight="1"/>
-    <FrameLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="20dp"
-        android:id="@+id/neg_percentage2">
-        <ProgressBar
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="45dp"
-            android:layout_height="45dp"
-            android:progress="100"
-            android:progressDrawable="@drawable/shape_circular_percentage_background"/>
-        <ProgressBar
-            android:id="@+id/negProgressBar2"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="45dp"
-            android:layout_height="45dp"
-            android:progress="35"
-            android:progressDrawable="@drawable/shape_circular_percentage_bad"/>
-        <TextView
-            android:id="@+id/negProgressBarPercent2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="35%"
-            android:textColor="#1a917f"/>
-    </FrameLayout>
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+            <ImageButton
+                android:id="@+id/previousRouteButton"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/ic_keyboard_arrow_down_grey_48dp"
+                android:scaleType="fitCenter"
+                android:background="#00000000"/>
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"/>
+            <TextView
+                android:id="@+id/rutaSeleccionada"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ruta"
+                android:textSize="18sp"
+                android:textIsSelectable="false"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"/>
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"/>
+            <ImageButton
+                android:id="@+id/nextRouteButton"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/ic_keyboard_arrow_up_grey_48dp"
+                android:scaleType="fitCenter"
+                android:background="#00000000"/>
+            <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"/>
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/pos_percentage">
+                <ProgressBar
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="45dp"
+                    android:layout_height="45dp"
+                    android:progress="100"
+                    android:progressDrawable="@drawable/shape_circular_percentage_background"/>
+                <ProgressBar
+                    android:id="@+id/posProgressBar2"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="45dp"
+                    android:layout_height="45dp"
+                    android:progress="00"
+                    android:progressDrawable="@drawable/shape_circular_percentage_good"/>
+                <TextView
+                    android:id="@+id/posProgressBarText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="0%"
+                    android:textColor="#1a917f"/>
+            </FrameLayout>
+            <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"/>
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="20dp"
+                android:id="@+id/neg_percentage2">
+                <ProgressBar
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="45dp"
+                    android:layout_height="45dp"
+                    android:progress="100"
+                    android:progressDrawable="@drawable/shape_circular_percentage_background"/>
+                <ProgressBar
+                    android:id="@+id/negProgressBar2"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="45dp"
+                    android:layout_height="45dp"
+                    android:progress="00"
+                    android:progressDrawable="@drawable/shape_circular_percentage_bad"/>
+                <TextView
+                    android:id="@+id/negProgressBarText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="0%"
+                    android:textColor="#1a917f"/>
+            </FrameLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/routeInfoBottomBar"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:paddingBottom="5dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:visibility="gone">
+            <View
+                android:layout_width="30dp"
+                android:layout_height="match_parent"/>
+            <TextView
+                android:id="@+id/routeCountTextView"
+                android:layout_width="50dp"
+                android:layout_height="30dp"
+                android:gravity="center"
+                android:background="@drawable/shape_item_dondevas"
+                android:text="0/0"
+                android:textSize="16sp"/>
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"/>
+            <TextView
+                android:id="@+id/routeDateTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center_horizontal"
+                android:text="  -  -  "
+                android:textSize="16sp"/>
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1"/>
+            <TextView
+                android:id="@+id/routeHourTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center_horizontal"
+                android:text="  :  :  "
+                android:textSize="16sp"/>
+            <View
+                android:layout_width="50dp"
+                android:layout_height="match_parent"/>
+        </LinearLayout>
+    </LinearLayout>
 </LinearLayout>

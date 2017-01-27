@@ -53,6 +53,8 @@ public class TrackingService extends Service implements
     private String TAG = TrackingService.class.getSimpleName();
     private Context context = this;
 
+    public Boolean imTracking = false;
+
     int mStartMode;       // indicates how to behave if the service is killed
     IBinder mBinder;      // interface for clients that bind
     boolean mAllowRebind; // indicates whether onRebind should be used
@@ -68,6 +70,11 @@ public class TrackingService extends Service implements
 
     private LocalBroadcastManager broadcaster;
 
+    private int posVotes;
+    private int negVotes;
+    private long startTime;
+    private long endTime;
+
     @Override
     public void onCreate() {
         Log.i(TAG, "onCreate - in");
@@ -75,6 +82,11 @@ public class TrackingService extends Service implements
         // A inicializar cuando comience track o botonera
         routeName = null;
         bean = null;
+
+        posVotes = 0;
+        negVotes = 0;
+        startTime = 0;
+        endTime   = 0;
 
         if (mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -130,8 +142,10 @@ public class TrackingService extends Service implements
         LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient,this);
         mGoogleApiClient.disconnect();
 
+        long duration = (endTime - startTime) / 1000;
+
         //                      numPos, numNeg, duracion, distancia
-        baseDatos.endRoute(idRuta, 0, 0, 0, 0);
+        baseDatos.endRoute(idRuta, posVotes, negVotes, duration, 0);
         Log.i(TAG, "ending route " + idRuta);
 
         if (bean != null) {
@@ -147,32 +161,24 @@ public class TrackingService extends Service implements
     private void startTrack(Intent intent) {
         Log.i(TAG, "startTrack - in");
 
-        //DateFormat date = new SimpleDateFormat("HHmmss:ddMMyyyy");
-        //routeName = "origen_destino" + "_" + date.format(new Date()) + "_" + "n";
-        //Log.i(TAG,"startTrack - routeName=" + routeName + "(not used)");
-
         seqNum = 0;
         idDestino = intent.getIntExtra("destino_id", -1);
         idRuta = baseDatos.getLastRutasId() + 1;
         Log.i(TAG,"idDestino: " + String.valueOf(idDestino) + ", idRuta: " + String.valueOf(idRuta));
 
-        // String date = (new SimpleDateFormat("dd/MM/yyyy")).format(new Date());
-        // String hour = (new SimpleDateFormat("HH:mm:ss")).format(new Date());
-
+        // Se utiliza este formato de fechas para calzar con el del servidor ThingSpeak.
         String date = (new SimpleDateFormat("yyyy-MM-dd")).format(new Date());
         String hour = (new SimpleDateFormat("HH:mm:ss")).format(new Date());
 
         Log.i(TAG, "Tiempo, date: " + date + ", hour: " + hour);
         // Log: 'I/TrackingService: Tiempo, date: 19/01/2017, hour: 16:49:53'
 
-        //TODO: guardar ruta con nombre correspondiente.
+        startTime = System.currentTimeMillis();
 
-        //                                      nombre, hora, fecha
-        baseDatos.startRoute(idRuta, idDestino, "generic_track", hour, date);
+        // el nombre parece no ser muy importante, se deja igual para todas.
+        baseDatos.startRoute(idRuta, idDestino, "nombre", hour, date);
 
         mGoogleApiClient.connect();
-
-
     }
 
     private void connectToBean(Intent intent) {
@@ -238,6 +244,14 @@ public class TrackingService extends Service implements
 
                         boolean vote = msg.contains("Pos");
 
+                        // Se asume que si llega un msje por BT es si o si o un voto, sea negativo o positivo.
+
+                        if (vote) {
+                            posVotes += 1;
+                        } else {
+                            negVotes += 1;
+                        }
+
                         // Get location
                         Location location = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
 
@@ -295,6 +309,8 @@ public class TrackingService extends Service implements
         Log.i("EnRutaTrackingService","onConnected - in");
         createLocationRequest();
         startLocationUpdates();
+
+        imTracking = true;
 
         Intent intent = new Intent();
         intent.setAction(TrackingService.TRACKING_STARTED);

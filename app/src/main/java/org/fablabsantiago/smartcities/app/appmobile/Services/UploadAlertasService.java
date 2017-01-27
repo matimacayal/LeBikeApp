@@ -19,13 +19,16 @@ import org.fablabsantiago.smartcities.app.appmobile.Clases.Alerta;
 import org.fablabsantiago.smartcities.app.appmobile.Utils.DatabaseHandler;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class UploadAlertasService extends Service
 {
     public static final String UPLOAD_BY_TRACK = "org.fablabsantiago.smartcities.app.appmobile.Services.UploadAlertasServices.UPLOAD_BY_TRACK";
+    public static final String UPLOAD_SINGLE_TRACK = "org.fablabsantiago.smartcities.app.appmobile.Services.UploadAlertasServices.UPLOAD_SINGLE_TRACK";
 
     public static final String TRACK_ID = "org.fablabsantiago.smartcities.app.appmobile.Services.UploadAlertasServices.TRACK_ID";
+    public static final String ALERTA = "org.fablabsantiago.smartcities.app.appmobile.Services.UploadAlertasServices.ALERTA";
 
     private String TAG = UploadAlertasService.class.getSimpleName();
     private Context context = this;
@@ -38,14 +41,18 @@ public class UploadAlertasService extends Service
     private RequestQueue requestQueue;
     private DatabaseHandler baseDatos;
 
+    private boolean uploading;
+
     @Override
     public void onCreate() {
         Log.i(TAG, "onCreate - in");
 
-        listaAlertas = null;
+        listaAlertas = new ArrayList<Alerta>();
         requestQueue = null;
 
         baseDatos = new DatabaseHandler(this);
+
+        uploading = false;
     }
 
     @Override
@@ -53,10 +60,12 @@ public class UploadAlertasService extends Service
         Log.i(TAG, "onStartCommand - in");
         String action = intent.getAction();
 
-        // TODO: Implement the case for singular alertas.
         switch(action) {
             case UPLOAD_BY_TRACK:
                 uploadNewAlertas(intent);
+                break;
+            case UPLOAD_SINGLE_TRACK:
+                uploadAlerta(intent);
                 break;
             default:
                 Log.i(TAG, "Not a valid action");
@@ -97,12 +106,40 @@ public class UploadAlertasService extends Service
             return;
         }
 
-        listaAlertas = baseDatos.getAlertasByIdRuta(rutaId);
+        List<Alerta> lista = baseDatos.getAlertasByIdRuta(rutaId);
+        listaAlertas.addAll(lista);
+
         if (listaAlertas.isEmpty()) {
             Log.i(TAG, "No alertas to upload");
             stopSelf();
             return;
         }
+
+        prepareToUpload();
+    }
+
+    protected void uploadAlerta(Intent intent) {
+        Alerta alerta = intent.getParcelableExtra(ALERTA);
+
+        if (alerta == null) {
+            Log.i(TAG, "no alerta to upload");
+            return;
+        }
+        if (alerta.getId() == 0) {
+            Log.i(TAG, "invalid alerta id");
+            return;
+        }
+
+        listaAlertas.add(alerta);
+
+        prepareToUpload();
+    }
+
+    protected void prepareToUpload() {
+        if (uploading)
+            return;
+
+        uploading = true;
 
         requestQueue = Volley.newRequestQueue(this);
 
