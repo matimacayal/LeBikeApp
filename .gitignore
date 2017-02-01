@@ -22,6 +22,9 @@ Media/Mockup_01
 *.apk
 *.ap_
 
+#Include app beta apk
+!Documentacion/APK/lebike_app_beta_v1.0.0.apk
+
 # Files for the ART/Dalvik VM
 *.dex
 
