@@ -12,6 +12,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+
+import org.fablabsantiago.smartcities.app.appmobile.Interfaces.MisDestinosInterfaces.DestinoDialogListener;
 import org.fablabsantiago.smartcities.app.appmobile.R;
 
 public class DestinoEditDialog extends DialogFragment
@@ -23,7 +25,7 @@ public class DestinoEditDialog extends DialogFragment
     private Float destinoLat;
     private Float destinoLon;
 
-    private DialogListener dialogListener;
+    private DestinoDialogListener dialogListener;
 
     public DestinoEditDialog () {
 
@@ -115,15 +117,7 @@ public class DestinoEditDialog extends DialogFragment
         });
     }
 
-
-    public interface DialogListener {
-        void onCloseClick();
-        void onEliminarClick(int id);
-        void onGuardarClick(String name, String dir, int ide, Double lat, Double lon);
-        void showToast(String text);
-    }
-
-    public void setDialogListener(DialogListener dialogListener) {
+    public void setDialogListener(DestinoDialogListener dialogListener) {
         this.dialogListener = dialogListener;
     }
 }

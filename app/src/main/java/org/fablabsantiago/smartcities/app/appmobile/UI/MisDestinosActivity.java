@@ -14,15 +14,15 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.fablabsantiago.smartcities.app.appmobile.Interfaces.MisDestinosInterfaces;
 import org.fablabsantiago.smartcities.app.appmobile.Utils.DatabaseHandler;
 import org.fablabsantiago.smartcities.app.appmobile.UI.Fragments.DestinoEditDialog;
-import org.fablabsantiago.smartcities.app.appmobile.UI.Fragments.DestinoEditDialog.DialogListener;
 import org.fablabsantiago.smartcities.app.appmobile.Adapters.MisDestinosAdapter;
 import org.fablabsantiago.smartcities.app.appmobile.Clases.Destino;
 import org.fablabsantiago.smartcities.app.appmobile.R;
 import org.fablabsantiago.smartcities.app.appmobile.Clases.Ruta;
 
-public class MisDestinosActivity extends AppCompatActivity implements DialogListener
+public class MisDestinosActivity extends AppCompatActivity implements MisDestinosInterfaces.DestinoDialogListener
 {
     DatabaseHandler baseDatos;
     List<Destino> listaDestinos = new ArrayList<Destino>();
