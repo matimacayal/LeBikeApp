@@ -9,11 +9,14 @@
 .idea/vcs.xml
 .idea/*
 
-# Recursos Gráficos
+# Directorios Extra
 Recursos\ Graficos/*
 Screenshots\ y\ Diagramas/*
 Screenshots/*
 PICOOOOO/*
+RecursosExternos/*
+recursos_graficos_v2
+Media/Mockup_01
 
 # Built application files
 *.apk
