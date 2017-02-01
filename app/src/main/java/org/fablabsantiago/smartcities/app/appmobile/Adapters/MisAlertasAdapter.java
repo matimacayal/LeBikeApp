@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.fablabsantiago.smartcities.app.appmobile.Clases.Alerta;
 import org.fablabsantiago.smartcities.app.appmobile.R;
@@ -33,8 +34,16 @@ public class MisAlertasAdapter extends ArrayAdapter<Alerta>
         // a la rápida
         //      2. mejorar esta manera de asignar el tipo de alerta y la imagen respectiva.
         // Cuando una alerta no es de ningún tipo, es del tipo '""'
-        String tipoAlerta = (alerta.getTipoAlerta().equals("")) ? "void":alerta.getTipoAlerta();
-        String votoAlerta = (alerta.getPosNeg()) ? "pos":"neg";
+
+        String tipoAlerta = "";
+        String votoAlerta = "";
+        try {
+            tipoAlerta = (alerta.getTipoAlerta().equals("")) ? "void":alerta.getTipoAlerta();
+            votoAlerta = (alerta.getPosNeg()) ? "pos":"neg";
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(getContext(), "Error: alerta with 'null' fields", Toast.LENGTH_SHORT).show();
+        }
         String tipoTotalAlerta = votoAlerta + tipoAlerta;
         int resId;
         switch (tipoTotalAlerta) {
@@ -58,8 +67,10 @@ public class MisAlertasAdapter extends ArrayAdapter<Alerta>
         }
 
         String tituloText = alerta.getTitulo();
-        if (tituloText.equals("")) {
-            tituloText = "Alerta " + (votoAlerta.equals("pos")?"positiva":"negativa") + ".\nPresionar para editar.";
+        if (tituloText != null) {
+            if (tituloText.equals("")) {
+                tituloText = "Alerta " + (votoAlerta.equals("pos")?"positiva":"negativa") + ".\nPresionar para editar.";
+            }
         }
 
         ImageView tipoAlertaIV = (ImageView) convertView2.findViewById(R.id.tipoalerta_itemmisalertas);

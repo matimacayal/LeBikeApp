@@ -29,6 +29,69 @@
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
         app:tabGravity="fill"/>
 
+    <!-- uploading alerta tab -->
+    <LinearLayout
+        android:id="@+id/uploadingAlertasInfoLL"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:gravity="center_vertical"
+        android:background="#009487"
+        android:orientation="horizontal"
+        android:visibility="gone">
+        <TextView
+            android:id="@+id/uploadingAlertasInfoText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#ffffff"
+            android:text="Subiendo alertas"/>
+        <View
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"/>
+        <ProgressBar
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:layout_gravity="center"
+            android:theme="@style/AppTheme.WhiteAccent"/>
+    </LinearLayout>
+
+    <!-- not uploaded alertas tab -->
+    <LinearLayout
+        android:id="@+id/notUploadedAlertasInfoLL"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:gravity="center_vertical"
+        android:background="#ea582d"
+        android:orientation="horizontal"
+        android:visibility="gone">
+        <TextView
+            android:id="@+id/notUploadedAlertasInfoText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#ffffff"
+            android:text="Alertas sin subir"/>
+        <View
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"/>
+        <Button
+            android:id="@+id/notUploadedAlertasInfoButton"
+            android:layout_width="wrap_content"
+            android:layout_height="15dp"
+            android:text="Subir"
+            android:textColor="#ffffff"
+            android:background="#00000000"/>
+    </LinearLayout>
+
+
     <!-- View pager to swipe views -->
     <android.support.v4.view.ViewPager
         android:id="@+id/pager"

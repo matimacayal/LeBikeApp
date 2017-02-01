@@ -1,9 +1,11 @@
 package org.fablabsantiago.smartcities.app.appmobile.UI.Fragments;
 
 
+import android.content.SharedPreferences;
 import android.support.v4.app.DialogFragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +19,7 @@ import android.widget.Toast;
 import org.fablabsantiago.smartcities.app.appmobile.Clases.Alerta;
 import org.fablabsantiago.smartcities.app.appmobile.Interfaces.MisAlertasInterfaces.AlertaDialogListener;
 import org.fablabsantiago.smartcities.app.appmobile.R;
+import org.fablabsantiago.smartcities.app.appmobile.UI.LoginActivity;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -26,8 +29,12 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import static android.content.Context.MODE_PRIVATE;
+
 public class AlertaEditDialog extends DialogFragment
 {
+    public static final String TAG = AlertaEditDialog.class.getSimpleName();
+
     Alerta alerta;
     Bundle alertaInfo;
 
@@ -72,11 +79,17 @@ public class AlertaEditDialog extends DialogFragment
         alertaInfo = getArguments();
         if (alertaInfo != null) {
             String action = alertaInfo.getString("NEW_ALERTA_ACTION");
-            if (action.equals("EDIT_ALERTA")) {
-                alertaInfo.remove("NEW_ALERTA_ACTION");
-                alerta = new Alerta(alertaInfo);
-            } else if (action.equals("NEW_ALERTA_FROM_MAP")) {
-                alerta = null;
+
+            switch(action) {
+                case "EDIT_ALERTA":
+                    alertaInfo.remove("NEW_ALERTA_ACTION");
+                    alerta = new Alerta(alertaInfo);
+                    break;
+                case "NEW_ALERTA_FROM_MAP":
+                    alerta = null;
+                    break;
+                default:
+                    Log.i(TAG, "Invalid action.");
             }
         }
 
@@ -229,35 +242,26 @@ public class AlertaEditDialog extends DialogFragment
                 String titulo2 = titulo.getText().toString();
                 String descripcion2 = descripcion.getText().toString();
                 String tipo2 = "";
-                ImageView tipoSelec;
                 for (ImageView tipo : tiposAlerta) {
                     if (tipo.getAlpha() == (float) 1.0) {
                         switch (tipo.getId()) {
-                            case R.id.edit_alerta_dialog_ciclovias:
-                                tipo2 = "cicl";
-                                break;
-                            case R.id.edit_alerta_dialog_vias:
-                                tipo2 = "vias";
-                                break;
-                            case R.id.edit_alerta_dialog_mantencion:
-                                tipo2 = "mant";
-                                break;
-                            case R.id.edit_alerta_dialog_automoviles:
-                                tipo2 = "auto";
-                                break;
-                            case R.id.edit_alerta_dialog_peaton:
-                                tipo2 = "peat";
-                                break;
-                            case R.id.edit_alerta_dialog_otros:
-                                tipo2 = "otro";
-                                break;
+                            case R.id.edit_alerta_dialog_ciclovias:   tipo2 = "cicl"; break;
+                            case R.id.edit_alerta_dialog_vias:        tipo2 = "vias"; break;
+                            case R.id.edit_alerta_dialog_mantencion:  tipo2 = "mant"; break;
+                            case R.id.edit_alerta_dialog_automoviles: tipo2 = "auto"; break;
+                            case R.id.edit_alerta_dialog_peaton:      tipo2 = "peat"; break;
+                            case R.id.edit_alerta_dialog_otros:       tipo2 = "otro"; break;
+                            case R.id.edit_alerta_dialog_espacios:    tipo2 = "vege"; break;
                             default:
                                 tipo2 = "";
                                 break;
                         }
                     }
                 }
-                Boolean posneg2 = (positiva.getAlpha() == (float) 1.0);
+                boolean posneg2 = (positiva.getAlpha() == (float) 1.0);
+                // Se obtiene el user_id registrado.
+                SharedPreferences preferences = getContext().getSharedPreferences("leBikePreferences", MODE_PRIVATE);
+                String userId = preferences.getString(LoginActivity.USER_NAME, "");
 
                 String action;
                 int id2;
@@ -272,6 +276,17 @@ public class AlertaEditDialog extends DialogFragment
                     idRuta2 = alerta.getIdRuta();
                     ver2 = alerta.getVersion() + 1;
                     action = "UPDATE_ALERTA";
+
+                    // Si nada se cambio de la alerta se cierra la ventana sin hacer nada
+                    if ((alerta.getPosNeg() == posneg2) &&
+                            alerta.getTitulo().equals(titulo2) &&
+                            alerta.getDescrption().equals(descripcion2) &&
+                            alerta.getTipoAlerta().equals(tipo2)) {
+                        Log.i(TAG, "Nothing changed. Closing.");
+                        alertaDialogListener.onCloseClick();
+                        return;
+                    }
+
                 } else {
                     id2 = alertaInfo.getInt("NEW_ALERTA_ID");
                     lat2 = alertaInfo.getDouble("NEW_ALERTA_LAT");
@@ -293,7 +308,10 @@ public class AlertaEditDialog extends DialogFragment
                         descripcion2,
                         idRuta2,
                         ver2,
-                        "");
+                        "",
+                        userId,
+                        false
+                        );
                 newAlerta.setEstado(newAlerta.isComplete());
 
                 alertaDialogListener.onAgregarAlerta(newAlerta, action);

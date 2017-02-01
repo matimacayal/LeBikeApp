@@ -41,4 +41,11 @@
         <item name="android:windowNoTitle">true</item>
     </style>
 
+    <!-- Progress Bar style -->
+    <style name="AppTheme.WhiteAccent">
+        <item name="colorAccent">#ffffff</item>
+    </style>
+    <style name="AppTheme.GreenAccent">
+        <item name="colorAccent">#009487</item>
+    </style>
 </resources>

@@ -3,12 +3,18 @@ package org.fablabsantiago.smartcities.app.appmobile.UI;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
+import android.view.animation.RotateAnimation;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -101,6 +107,9 @@ public class LeBikeActivity extends AppCompatActivity
         {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                ProgressBar spinner = (ProgressBar) view.findViewById(R.id.dondeVasListItemProgressBar);
+                spinner.setVisibility(View.VISIBLE);
+
                 Destino item = (Destino) ((ListView) findViewById(R.id.destinationsList)).getItemAtPosition(position);
 
                 boolean bTrackingRoute = leBikePrefs.getBoolean("BOOL_TRACKING_ROOT", false)

@@ -27,6 +27,7 @@
             android:layout_width="0dp"
             android:layout_height="20dp"/>
         <ImageView
+            android:id="@+id/leBikeWheelImage"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:src="@drawable/ic_lebike_icon_white_big"

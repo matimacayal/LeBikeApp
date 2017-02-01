@@ -2,6 +2,7 @@ package org.fablabsantiago.smartcities.app.appmobile.Utils;
 
 import android.app.ActivityManager;
 import android.content.Context;
+import android.content.SharedPreferences;
 
 public class ServiceUtils
 {

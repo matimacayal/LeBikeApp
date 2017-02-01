@@ -110,10 +110,19 @@
                 android:layout_height="50dp"
                 android:src="@drawable/shape_orange_circle"/>
             <ImageView
+                android:id="@+id/loginReadyButtonArrow"
                 android:layout_width="33dp"
                 android:layout_height="29dp"
                 android:layout_gravity="center"
-                android:src="@drawable/ic_forward_white_24dp"/>
+                android:src="@drawable/ic_forward_white_24dp"
+                android:visibility="visible"/>
+            <ProgressBar
+                android:id="@+id/loginReadyButtonSpinner"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="center"
+                android:theme="@style/AppTheme.WhiteAccent"
+                android:visibility="gone"/>
         </FrameLayout>
 
 

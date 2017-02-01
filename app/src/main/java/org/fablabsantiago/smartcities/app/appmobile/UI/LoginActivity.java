@@ -13,6 +13,8 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -172,26 +174,18 @@ public class LoginActivity extends AppCompatActivity
             public void onErrorResponse(VolleyError error) {
                 Log.e(TAG, "Volley Error:" + error.toString());
                 Toast.makeText(context, "Error uploading data. ", Toast.LENGTH_SHORT).show();
+
+                ImageView arrow = (ImageView) findViewById(R.id.loginReadyButtonArrow);
+                ProgressBar spinner = (ProgressBar) findViewById(R.id.loginReadyButtonSpinner);
+                arrow.setVisibility(View.VISIBLE);
+                spinner.setVisibility(View.GONE);
             }
         });
-        /*
-        JsonObjectRequest obreq = new JsonObjectRequest(Request.Method.GET, url, null,
-                new Response.Listener<JSONObject>()
-                {
-                    @Override
-                    public void onResponse(JSONObject response) {
 
-                    }
-                },
-                new Response.ErrorListener()
-                {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-
-                    }
-                }
-        );
-        */
+        ImageView arrow = (ImageView) findViewById(R.id.loginReadyButtonArrow);
+        ProgressBar spinner = (ProgressBar) findViewById(R.id.loginReadyButtonSpinner);
+        arrow.setVisibility(View.GONE);
+        spinner.setVisibility(View.VISIBLE);
 
         requestQueue.add(obreq);
     }

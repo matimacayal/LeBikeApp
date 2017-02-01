@@ -429,4 +429,26 @@
             android:onClick="exitDeviceConnect"/>
     </LinearLayout>
 
+    <FrameLayout
+        android:id="@+id/downloadingDataInfoSpinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp"
+        android:layout_gravity="bottom|center_horizontal"
+        android:gravity="center_vertical"
+        android:onClick="onLoginReadyButtonClick"
+        android:visibility="gone">
+        <ImageView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/shape_green_circle"/>
+        <ProgressBar
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center"
+            android:theme="@style/AppTheme.WhiteAccent"/>
+    </FrameLayout>
+
 </FrameLayout>

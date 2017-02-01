@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto"
+      xmlns:tools="http://schemas.android.com/tools"
+      tools:context=".UI.EnRutaActivity">
+    <item android:id="@+id/action_download_alertas_servidor"
+          android:title="Download Alertas Servidor"
+          android:icon="@drawable/cloud_download"
+          android:orderInCategory="50"
+          app:showAsAction="ifRoom" />
+</menu>

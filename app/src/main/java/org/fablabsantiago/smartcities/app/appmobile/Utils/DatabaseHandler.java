@@ -62,6 +62,8 @@ public class DatabaseHandler extends SQLiteOpenHelper
     public static final String TA_LONGITUDE   = "longitude";
     public static final String TA_ESTADO      = "estado";
     public static final String TA_ID          = "id";
+    public static final String TA_USER_ID     = "userid";
+    public static final String TA_UPLOADED    = "uploaded";
 
     // Comandos para crear tablas
     private static final String CREATE_DESTINOS_TABLE_COMMAND =
@@ -108,7 +110,9 @@ public class DatabaseHandler extends SQLiteOpenHelper
                 TA_DESCRIPCION + " TEXT, " +
                 TA_IDRUTA      + " INTEGER, " +
                 TA_VERSION     + " INTEGER, " +
-                TA_ESTADO      + " TEXT);";
+                TA_ESTADO      + " TEXT," +
+                TA_USER_ID     + " TEXT," +
+                TA_UPLOADED    + " INTEGER);";
 
     public DatabaseHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -242,7 +246,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
     /*------------------------------------------------------*/
     /*----------------------- Alertas ----------------------*/
     public void newAlerta(Alerta alerta) {
-        //Genera una nueva id para la alerta
+        // Genera una nueva id para la alerta
         int alertaId = alerta.getId();
         if (alertaId == 0) {
             alertaId = getLastAlertaId() + 1;
@@ -252,7 +256,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
 
         ContentValues values = new ContentValues();
         values.put(TA_ID         , alertaId);
-        values.put(TA_POSNEG     , (alerta.getPosNeg()) ? 1:0);
+        values.put(TA_POSNEG     , (alerta.getPosNeg()) ? 1 : 0);
         values.put(TA_LATITUDE   , alerta.getLat());
         values.put(TA_LONGITUDE  , alerta.getLng());
         values.put(TA_TIPOALERTA , alerta.getTipoAlerta());
@@ -263,6 +267,8 @@ public class DatabaseHandler extends SQLiteOpenHelper
         values.put(TA_IDRUTA     , alerta.getIdRuta());
         values.put(TA_VERSION    , alerta.getVersion());
         values.put(TA_ESTADO     , alerta.getEstado());
+        values.put(TA_USER_ID    , alerta.getUserId());
+        values.put(TA_UPLOADED   , (alerta.isUploaded()) ? 1 : 0);
 
         db.insert(ALERTAS_TABLE, null, values);
     }
@@ -272,7 +278,7 @@ public class DatabaseHandler extends SQLiteOpenHelper
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-        values.put(TA_POSNEG     , (alerta.getPosNeg()) ? 1:0);
+        values.put(TA_POSNEG     , (alerta.getPosNeg()) ? 1 : 0);
         values.put(TA_LATITUDE   , alerta.getLat());
         values.put(TA_LONGITUDE  , alerta.getLng());
         values.put(TA_TIPOALERTA , alerta.getTipoAlerta());
@@ -283,8 +289,19 @@ public class DatabaseHandler extends SQLiteOpenHelper
         values.put(TA_IDRUTA     , alerta.getIdRuta());
         values.put(TA_VERSION    , nuevaVersion);
         values.put(TA_ESTADO     , alerta.getEstado());
+        values.put(TA_USER_ID    , alerta.getUserId());
+        values.put(TA_UPLOADED   , (alerta.isUploaded()) ? 1 : 0);
 
         db.update(ALERTAS_TABLE, values, TA_ID + " = " + Integer.toString(alerta.getId()), null);
+    }
+
+    public void setAlertaUploaded(int id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(TA_UPLOADED, 1);
+
+        db.update(ALERTAS_TABLE, values, TA_ID + " = " + Integer.toString(id), null);
     }
 
     public boolean deleteAlerta(int id) {
@@ -533,11 +550,8 @@ public class DatabaseHandler extends SQLiteOpenHelper
 
         return alertas;
     }
-    public List<Alerta> getAlertasByEstado(String type) {
+    public List<Alerta> getAlertasByEstado(String tipoalerta) {
         SQLiteDatabase db = this.getReadableDatabase();
-
-        //TODO: hacer variable publica en clase alerta -> Alerta.COMPLETA o Alerta.PENDIENTE;
-        String tipoalerta = type;
 
         String query = "SELECT * FROM " + ALERTAS_TABLE + " WHERE " + TA_ESTADO + " = '" + tipoalerta + "'";
 
@@ -586,6 +600,24 @@ public class DatabaseHandler extends SQLiteOpenHelper
         cursor.close();
 
         return biggestId;
+    }
+
+    public List<Alerta> getNotUploadedAlertas() {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String query = "SELECT * FROM " + ALERTAS_TABLE + " WHERE " + TA_UPLOADED + " = 0";
+
+        Cursor cursor = db.rawQuery(query, null);
+
+        List<Alerta> alertas = new ArrayList<Alerta>();
+        if (cursor.moveToFirst()) { //returns 'false' if cursor is empty
+            do {
+                alertas.add(new Alerta(cursor));
+            } while(cursor.moveToNext());
+        }
+        cursor.close();
+
+        return alertas;
     }
 
     public void eraseAlertasTable() {

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -24,8 +25,17 @@ import java.util.List;
 
 public class UploadAlertasService extends Service
 {
+    public static final String UPLOADING = "org.fablabsantiago.smartcities.app.appmobile.Services.UploadAlertasServices.UPLOADING";
+    public static final String ALL_UPLOADED = "org.fablabsantiago.smartcities.app.appmobile.Services.UploadAlertasServices.ALL_UPLOADED";
+    public static final String ALERTA_UPLOADED = "org.fablabsantiago.smartcities.app.appmobile.Services.UploadAlertasServices.ALERTA_UPLOADED";
+    public static final String MORE_TO_UPLOAD = "org.fablabsantiago.smartcities.app.appmobile.Services.UploadAlertasServices.MORE_TO_UPLOAD";
+
+    public static final String BUFFER_SIZE = "org.fablabsantiago.smartcities.app.appmobile.Services.UploadAlertasServices.BUFFER_SIZE";
+    public static final String CURRENT_UPLOAD = "org.fablabsantiago.smartcities.app.appmobile.Services.UploadAlertasServices.CURRENT_UPLOAD";
+
     public static final String UPLOAD_BY_TRACK = "org.fablabsantiago.smartcities.app.appmobile.Services.UploadAlertasServices.UPLOAD_BY_TRACK";
     public static final String UPLOAD_SINGLE_TRACK = "org.fablabsantiago.smartcities.app.appmobile.Services.UploadAlertasServices.UPLOAD_SINGLE_TRACK";
+    public static final String UPLOAD_NOT_UPLOADED = "org.fablabsantiago.smartcities.app.appmobile.Services.UploadAlertasServices.UPLOAD_NOT_UPLOADED";
 
     public static final String TRACK_ID = "org.fablabsantiago.smartcities.app.appmobile.Services.UploadAlertasServices.TRACK_ID";
     public static final String ALERTA = "org.fablabsantiago.smartcities.app.appmobile.Services.UploadAlertasServices.ALERTA";
@@ -37,11 +47,14 @@ public class UploadAlertasService extends Service
     IBinder mBinder;      // interface for clients that bind
     boolean mAllowRebind; // indicates whether onRebind should be used
 
+    private LocalBroadcastManager broadcaster;
+
     public List<Alerta> listaAlertas;
     private RequestQueue requestQueue;
     private DatabaseHandler baseDatos;
 
     private boolean uploading;
+    private int current_upload;
 
     @Override
     public void onCreate() {
@@ -53,6 +66,8 @@ public class UploadAlertasService extends Service
         baseDatos = new DatabaseHandler(this);
 
         uploading = false;
+
+        broadcaster = LocalBroadcastManager.getInstance(this);
     }
 
     @Override
@@ -62,10 +77,13 @@ public class UploadAlertasService extends Service
 
         switch(action) {
             case UPLOAD_BY_TRACK:
-                uploadNewAlertas(intent);
+                uploadNewAlertasByTrack(intent);
                 break;
             case UPLOAD_SINGLE_TRACK:
                 uploadAlerta(intent);
+                break;
+            case UPLOAD_NOT_UPLOADED:
+                uploadNotUploadedAlertas();
                 break;
             default:
                 Log.i(TAG, "Not a valid action");
@@ -95,10 +113,17 @@ public class UploadAlertasService extends Service
     @Override
     public void onDestroy() {
         Log.i(TAG, "onDestroy - in");
+
+        // Notifying MisAlertasActivity
+        Intent intent = new Intent();
+        intent.setAction(ALL_UPLOADED);
+        broadcaster.sendBroadcast(intent);
+
+        super.onDestroy();
     }
 
     /********** Custom - Non Service - Methods  **********/
-    protected void uploadNewAlertas(Intent intent) {
+    protected void uploadNewAlertasByTrack(Intent intent) {
         int rutaId = intent.getIntExtra(TRACK_ID, -1);
         if (rutaId == -1) {
             Log.i(TAG, "No track id specified");
@@ -107,6 +132,15 @@ public class UploadAlertasService extends Service
         }
 
         List<Alerta> lista = baseDatos.getAlertasByIdRuta(rutaId);
+        uploadNewAlertas(lista);
+    }
+
+    protected  void uploadNotUploadedAlertas() {
+        List<Alerta> lista = baseDatos.getNotUploadedAlertas();
+        uploadNewAlertas(lista);
+    }
+
+    protected void uploadNewAlertas(List<Alerta> lista) {
         listaAlertas.addAll(lista);
 
         if (listaAlertas.isEmpty()) {
@@ -138,6 +172,14 @@ public class UploadAlertasService extends Service
     protected void prepareToUpload() {
         if (uploading)
             return;
+
+        current_upload = 1;
+
+        // Notifying MisAlertasActivity
+        Intent intent = new Intent();
+        intent.setAction(UPLOADING);
+        intent.putExtra(BUFFER_SIZE, listaAlertas.size());
+        broadcaster.sendBroadcast(intent);
 
         uploading = true;
 
@@ -175,6 +217,7 @@ public class UploadAlertasService extends Service
             String tipo_alerta = alerta.getTipoAlerta();
             String version = Integer.toString(alerta.getVersion());
             final String alerta_id = Integer.toString(alerta.getId());
+            final int alerta_id_int = alerta.getId();
 
             String fecha_hora = alerta.getFecha() + 'T' + alerta.getHora();
             String lat = Double.toString(alerta.getLat());
@@ -201,6 +244,13 @@ public class UploadAlertasService extends Service
                         public void onResponse(JSONObject response) {
                             Log.i(TAG, "(Alerta : " + alerta_id + ") json response: " + response.toString());
                             listaAlertas.remove(0);
+
+                            baseDatos.setAlertaUploaded(alerta_id_int);
+
+                            Intent intent = new Intent();
+                            intent.setAction(ALERTA_UPLOADED);
+                            intent.putExtra(BUFFER_SIZE, listaAlertas.size());
+                            broadcaster.sendBroadcast(intent);
                         }
                     },
                     new Response.ErrorListener()
@@ -208,7 +258,7 @@ public class UploadAlertasService extends Service
                         @Override
                         public void onErrorResponse(VolleyError error) {
                             Log.e(TAG, "(Alerta : " + alerta_id + ") Volley Error:" + error.toString());
-                            Toast.makeText(context, "Error uploading data. ", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, "Error uploading data. Trying again.", Toast.LENGTH_SHORT).show();
                         }
                     }
             );

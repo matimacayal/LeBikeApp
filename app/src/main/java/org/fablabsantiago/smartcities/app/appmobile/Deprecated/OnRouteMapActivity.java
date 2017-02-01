@@ -1204,7 +1204,7 @@ public class OnRouteMapActivity extends AppCompatActivity implements
     public boolean onCreateOptionsMenu(Menu menu)
     {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_onroutemap, menu);
+        getMenuInflater().inflate(R.menu.menu_enrutaactivity_destino, menu);
         return true;
     }
 

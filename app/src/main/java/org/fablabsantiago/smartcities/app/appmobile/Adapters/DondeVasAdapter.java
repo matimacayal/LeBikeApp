@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -39,7 +40,7 @@ public class DondeVasAdapter extends ArrayAdapter<Destino> {
         dondeVoy.setText(destino.getName());
         dondeVoy.setTypeface(null, Typeface.BOLD);
 
-        RelativeLayout background = (RelativeLayout) convertView.findViewById(R.id.relativeLayoutParent);
+        LinearLayout background = (LinearLayout) convertView.findViewById(R.id.relativeLayoutParent);
         if (destino.getName().equals(LeBikeActivity.DESTINO_LIBRE)) {
             background.setBackgroundResource(R.drawable.shape_item_dondevas_verde);
             dondeVoy.setTextColor(Color.parseColor("#ffffff"));

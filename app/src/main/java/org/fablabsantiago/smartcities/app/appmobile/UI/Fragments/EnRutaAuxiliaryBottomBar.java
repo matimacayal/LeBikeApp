@@ -4,6 +4,7 @@ package org.fablabsantiago.smartcities.app.appmobile.UI.Fragments;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -173,8 +174,28 @@ public class EnRutaAuxiliaryBottomBar extends Fragment
     public void refreshTrackUI(boolean trackingRoute) {
         ImageButton trackRouteButton = (ImageButton) bottomBarView.findViewById(R.id.trackRouteButton);
         //int imageButtonRsc = (trackingRoute) ? R.drawable.arrow_right_bold_circle_orange : R.drawable.arrow_right_bold_circle;
-        int imageButtonRsc = (trackingRoute) ? R.drawable.play_circle_orange : R.drawable.play_circle_green;
+        int imageButtonRsc = (trackingRoute) ? R.drawable.pause_circle_orange : R.drawable.play_circle_green;
         trackRouteButton.setImageResource(imageButtonRsc);
+        /*
+        trackRouteButton.setTag(imageButtonRsc);
+
+        final Handler h = new Handler();
+        final int delay = 700; //milliseconds
+        Runnable runnable = new Runnable(){
+            public void run(){
+                ImageButton trackRouteButton = (ImageButton) bottomBarView.findViewById(R.id.trackRouteButton);
+                int imageButtonRsc = (((Integer) trackRouteButton.getTag()) == R.drawable.pause_circle_gray) ?
+                        R.drawable.pause_circle_orange : R.drawable.pause_circle_gray;
+                trackRouteButton.setImageResource(imageButtonRsc);
+                trackRouteButton.setTag(imageButtonRsc);
+                h.postDelayed(this, delay);
+            }
+        };
+        if (trackingRoute) {
+            h.postDelayed(runnable, delay);
+        } else {
+            h.removeCallbacks(runnable);
+        }*/
     }
 
     public void refreshRouteUI() { //refreshRouteUI(rutaActual, listaRutas);

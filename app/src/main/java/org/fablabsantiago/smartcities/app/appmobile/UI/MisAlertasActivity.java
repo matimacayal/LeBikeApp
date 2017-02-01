@@ -1,24 +1,37 @@
 package org.fablabsantiago.smartcities.app.appmobile.UI;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.vision.text.Line;
+
 import org.fablabsantiago.smartcities.app.appmobile.Clases.Alerta;
+import org.fablabsantiago.smartcities.app.appmobile.Services.TrackingService;
 import org.fablabsantiago.smartcities.app.appmobile.Services.UploadAlertasService;
 import org.fablabsantiago.smartcities.app.appmobile.UI.Fragments.AlertaEditDialog;
 import org.fablabsantiago.smartcities.app.appmobile.Utils.DatabaseHandler;
 import org.fablabsantiago.smartcities.app.appmobile.Interfaces.MisAlertasInterfaces;
 import org.fablabsantiago.smartcities.app.appmobile.Adapters.MisAlertasPagerAdapter;
 import org.fablabsantiago.smartcities.app.appmobile.R;
+import org.fablabsantiago.smartcities.app.appmobile.Utils.ServiceUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +41,7 @@ public class MisAlertasActivity extends AppCompatActivity implements
         MisAlertasInterfaces.AlertaDialogListener
 {
     private String TAG = MisAlertasActivity.class.getSimpleName();
+    private Context context = this;
 
     private TabLayout tabLayout;
     private ViewPager viewPager;
@@ -38,6 +52,7 @@ public class MisAlertasActivity extends AppCompatActivity implements
     FragmentManager fragmentManager;
     AlertaEditDialog dialog;
 
+    private BroadcastReceiver uploadingReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -123,6 +138,64 @@ public class MisAlertasActivity extends AppCompatActivity implements
 
             }
         });
+
+        /*---------- Comunicación TrackingService ----------*/
+        initializeServiceCommunication();
+    }
+
+    protected void initializeServiceCommunication() {
+        // TODO: Mejorar este feedback de información.
+        // Ahora avisa a actividad cuando comienza y cuando termina. Si actividad empieza en medio,
+        // hay que esperar a que alguna alerta se suba para que se actualice la info.
+        uploadingReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Log.i(TAG, "Broadcast received.");
+                Log.i(TAG, "package: " + this);
+                String action = intent.getAction();
+                switch(action) {
+                    case UploadAlertasService.UPLOADING:
+                        showUploadingInfo(true, intent);
+                        break;
+                    case UploadAlertasService.ALL_UPLOADED:
+                        showUploadingInfo(false, intent);
+                        break;
+                    case UploadAlertasService.ALERTA_UPLOADED:
+                        showUploadingInfoBufferSize(intent);
+                        break;
+                    default:
+                        Log.i(TAG, "UploadingReceiver - Invalid action");
+                        break;
+                }
+
+            }
+        };
+    }
+
+    protected void showUploadingInfo(Boolean uploading, Intent intent) {
+        Log.i(TAG, "showUploadingInfo - in");
+
+        int visibility = (uploading)? View.VISIBLE : View.GONE;
+
+        LinearLayout info = (LinearLayout) findViewById(R.id.uploadingAlertasInfoLL);
+        info.setVisibility(visibility);
+
+        LinearLayout infoNotUp = (LinearLayout) findViewById(R.id.notUploadedAlertasInfoLL);
+        infoNotUp.setVisibility(View.GONE);
+
+        if (uploading && (intent != null)) {
+            showUploadingInfoBufferSize(intent);
+        }
+    }
+
+    protected void showUploadingInfoBufferSize(Intent intent) {
+        int num = intent.getIntExtra(UploadAlertasService.BUFFER_SIZE, -1);
+        TextView text = (TextView) findViewById(R.id.uploadingAlertasInfoText);
+        if (num > 0) {
+            text.setText("Subiendo alertas (" + Integer.toString(num) + " restantes)");
+        } else {
+            text.setText("Terminando.");
+        }
     }
 
     @Override
@@ -135,13 +208,18 @@ public class MisAlertasActivity extends AppCompatActivity implements
 
             if (listaAlertas.isEmpty()) {
                 Log.i("MisAlertasActivity","populating alertas table");
+                SharedPreferences preferences = getSharedPreferences("leBikePreferences", MODE_PRIVATE);
+                String userId = preferences.getString(LoginActivity.USER_NAME, "");
+
                 baseDatos.newAlerta(new Alerta(
                         200001, false, -33.450276, -70.627628,
                         "auto",
                         "22:22:21", "2017-01-20",
                         "Cruce de autos imprudentes",
                         "Casi salgo volando por un auto que se precipito con mi dedo chico",
-                        300001, 0, "completa"));
+                        300001, 0, "completa",
+                        userId, false
+                        ));
                 /*
                 baseDatos.newAlerta(new Alerta(
                         0, true, -33.444446, -70.628695,
@@ -210,12 +288,51 @@ public class MisAlertasActivity extends AppCompatActivity implements
         // cargue la data de la BD y la entregue a los fragments que la desplegarán en listas.
         MisAlertasPagerAdapter adapter = new MisAlertasPagerAdapter(this, getSupportFragmentManager());
         viewPager.setAdapter(adapter);
+
+        /*---------- Service-Activity Communication ----------*/
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(UploadAlertasService.UPLOADING);
+        filter.addAction(UploadAlertasService.ALL_UPLOADED);
+        filter.addAction(UploadAlertasService.ALERTA_UPLOADED);
+        LocalBroadcastManager.getInstance(this).registerReceiver(uploadingReceiver, filter);
     }
 
     @Override
     protected void onResume()
     {
         super.onResume();
+
+        // Check if something is not uploaded
+        List<Alerta> notUpAlertas = baseDatos.getNotUploadedAlertas();
+        if (notUpAlertas.size() > 0) {
+            LinearLayout notUpInfo = (LinearLayout) findViewById(R.id.notUploadedAlertasInfoLL);
+            notUpInfo.setVisibility(View.VISIBLE);
+
+            Button uploadButton = (Button) findViewById(R.id.notUploadedAlertasInfoButton);
+            uploadButton.setOnClickListener(new View.OnClickListener()
+            {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(context, UploadAlertasService.class);
+                    intent.setAction(UploadAlertasService.UPLOAD_NOT_UPLOADED);
+                    startService(intent);
+                }
+            });
+        }
+
+        // Check if uploading
+        Boolean uploading = ServiceUtils.isServiceRunning(this, UploadAlertasService.class);
+        if (uploading) {
+            showUploadingInfo(true, null);
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        /*---------- Service-Activity Communication ----------*/
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(uploadingReceiver);
     }
 
     /*                                /
@@ -289,6 +406,7 @@ public class MisAlertasActivity extends AppCompatActivity implements
 
     @Override
     public void onAgregarAlerta(Alerta alerta, String action) {
+        Log.i(TAG, "onAgregarAlerta - in");
         switch(action) {
             case "UPDATE_ALERTA":
                 Toast.makeText(this, "updating alerta " + alerta.getTitulo(), Toast.LENGTH_SHORT).show();

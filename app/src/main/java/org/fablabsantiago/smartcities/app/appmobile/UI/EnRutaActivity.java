@@ -1,7 +1,6 @@
 package org.fablabsantiago.smartcities.app.appmobile.UI;
 
 import android.Manifest;
-import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.content.BroadcastReceiver;
@@ -14,8 +13,6 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
-import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -33,6 +30,7 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -107,6 +105,7 @@ public class EnRutaActivity extends AppCompatActivity implements
     private Map<Ruta, Polyline> vladimirPutin;
     private List<Alerta> alertas;
     private List<Marker> mapAlertas;
+    private List<Marker> serverAlertas;
     private Map<Marker, Alerta> angelaMerkel;
     private CameraPosition mapCameraPosition;
 
@@ -160,6 +159,7 @@ public class EnRutaActivity extends AppCompatActivity implements
         vladimirPutin = new HashMap<Ruta, Polyline>();
         alertas = new ArrayList<Alerta>();
         mapAlertas = new ArrayList<Marker>();
+        serverAlertas = new ArrayList<Marker>();
         angelaMerkel = new HashMap<Marker, Alerta>();
         mapCameraPosition = null;
 
@@ -310,9 +310,6 @@ public class EnRutaActivity extends AppCompatActivity implements
         super.onStart();
 
         /*---------- Base Datos ----------*/
-        //TODO: (1) Implementar rutina para saber si se esta grabando un track o no.
-        // En caso de estar grabandose un track el destino debe estar guardado como estado.
-        // De esta manera debe agregarse al vector de estados (SharedPreferences) estos valores.
         destino = baseDatos.getDestinationById(destinationId);
         if (destino != null) {
             setTitle("En Ruta: " + destino.getName());
@@ -882,9 +879,14 @@ public class EnRutaActivity extends AppCompatActivity implements
 
     /*---------- Bluetooth ----------*/
     public void beanOptionsClick(View view) {
+        if (mBluetoothAdapter == null) {
+            Toast.makeText(this, "Bluetooth not supported.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         // Si bluetooth disabled, acá se cae porque mBluetoothAdapter da null
         if (mBluetoothAdapter.isEnabled()) {
-            Log.i("EnRutaActivity","Bean options button clicked");
+            Log.i(TAG,"Bean options button clicked");
             beans.clear();
             adapter.clear();
             adapter.notifyDataSetChanged();
@@ -972,45 +974,6 @@ public class EnRutaActivity extends AppCompatActivity implements
         }
     }
 
-    /*                                /
-     *        MENUU_ITEMSS            /
-     *                               */
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu)
-    {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_onroutemap, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_bean_device) {
-            FrameLayout onRouteMapActivity = (FrameLayout) findViewById(R.id.on_route_map_activity_layout);
-            LinearLayout beanConnectActivity = (LinearLayout) findViewById(R.id.bean_connect_layout);
-
-            if(beanConnectActivity.getVisibility() == View.VISIBLE) {
-                //Exited xd
-                exitBeanConnectSubactivity(onRouteMapActivity, beanConnectActivity);
-            } else {
-                //Entered
-                onRouteMapActivity.setVisibility(View.INVISIBLE);
-                beanConnectActivity.setVisibility(View.VISIBLE);
-            }
-
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
     public void exitBeanConnectSubactivity(View v1, View v2) {
         v1.setVisibility(View.VISIBLE);
         v2.setVisibility(View.GONE);
@@ -1022,5 +985,140 @@ public class EnRutaActivity extends AppCompatActivity implements
         } else {
             cancelScann(true);
         }
+    }
+
+    /*                                /
+     *        MENUU_ITEMSS            /
+     *                               */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        int menuRes = (destino != null) ? R.menu.menu_enrutaactivity_destino:R.menu.menu_enrutaactivity_libre;
+        getMenuInflater().inflate(menuRes, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        int id = item.getItemId();
+
+        switch (id) {
+            case R.id.action_bean_device:
+                beanDeviceMenuOption();
+                return true;
+            case R.id.action_download_alertas_servidor:
+                getAlertasServidor();
+                return true;
+            default:
+                Log.i(TAG, "invalid menu option action.");
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void beanDeviceMenuOption() {
+        FrameLayout onRouteMapActivity = (FrameLayout) findViewById(R.id.on_route_map_activity_layout);
+        LinearLayout beanConnectActivity = (LinearLayout) findViewById(R.id.bean_connect_layout);
+
+        if(beanConnectActivity.getVisibility() == View.VISIBLE) {
+            //Exited xd
+            exitBeanConnectSubactivity(onRouteMapActivity, beanConnectActivity);
+        } else {
+            //Entered
+            onRouteMapActivity.setVisibility(View.INVISIBLE);
+            beanConnectActivity.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void getAlertasServidor() {
+        Log.i(TAG, "getAlertasServidor - in");
+        if (mMap == null) {
+            return;
+        }
+
+        FrameLayout downloadInfoSpinner = (FrameLayout) findViewById(R.id.downloadingDataInfoSpinner);
+        downloadInfoSpinner.setVisibility(View.VISIBLE);
+
+        // Sacamos todos los markers actuales
+        for (Marker marker : mapAlertas) {
+            marker.remove();
+        }
+        for (Marker marker : serverAlertas) {
+            marker.remove();
+        }
+
+        String url = "https://api.thingspeak.com/channels/215310/feeds.json?location=true";
+        Log.i(TAG, "url: " + url);
+
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+        JsonObjectRequest obreq = new JsonObjectRequest(Request.Method.GET, url, null,
+                new Response.Listener<JSONObject>()
+                {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        Log.i(TAG, "json response: " + response.toString());
+
+                        // Parse response into Alerta alertas.
+                        try {
+                            JSONArray feeds = response.getJSONArray("feeds");
+                            int numFeeds = feeds.length();
+                            for (int i=0; i<numFeeds; i++) {
+                                // Puede haber algún campo nulo en un solo feed, acá se maneja esto para que no afecte el parseo de los demás
+                                try {
+                                    JSONObject feed = feeds.getJSONObject(i);
+                                    int iconRes = (feed.getString("field2").equals("1"))?R.drawable.marker_positive:R.drawable.marker_negative;
+                                    double lat = feed.getDouble("latitude");
+                                    double lon = feed.getDouble("longitude");
+
+                                    BitmapDescriptor markerIcon = BitmapDescriptorFactory.fromResource(iconRes);
+
+                                    serverAlertas.add(mMap.addMarker(new MarkerOptions()
+                                            .position(new LatLng(lat, lon))
+                                            .icon(markerIcon)));
+                                } catch (JSONException e) {
+                                    Log.i(TAG, "json response object error: " + e.toString());
+                                    e.printStackTrace();
+                                }
+                            }
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            Log.e(TAG, "json response error: " + e.toString());
+                        }
+
+                        FrameLayout downloadInfoSpinner = (FrameLayout) findViewById(R.id.downloadingDataInfoSpinner);
+                        downloadInfoSpinner.setVisibility(View.GONE);
+                    }
+                },
+                new Response.ErrorListener()
+                {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.e(TAG, "Volley Error:" + error.toString());
+                        Toast.makeText(context, "Error querying alertas from servidor.", Toast.LENGTH_SHORT).show();
+                    }
+                }
+        );
+        requestQueue.add(obreq);
+
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener()
+        {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                if (marker.equals(addAlertaMarker)) {
+                    Log.i(TAG, "onMarkerClick2 - on addAlertaMarker");
+                    Intent addAlertaIntent = new Intent(context, MisAlertasActivity.class);
+                    addAlertaIntent.setAction("REQUESTING_NEW_ALERTA");
+                    addAlertaIntent.putExtra("NEW_ALERTA_LATITUDE", marker.getPosition().latitude);
+                    addAlertaIntent.putExtra("NEW_ALERTA_LONGITUDE", marker.getPosition().longitude);
+                    startActivity(addAlertaIntent);
+                }
+                return false;
+            }
+        });
+
     }
 }

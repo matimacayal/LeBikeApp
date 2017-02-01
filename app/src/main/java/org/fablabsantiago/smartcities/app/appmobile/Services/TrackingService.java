@@ -3,6 +3,7 @@ package org.fablabsantiago.smartcities.app.appmobile.Services;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
@@ -26,6 +27,7 @@ import com.punchthrough.bean.sdk.message.Callback;
 import com.punchthrough.bean.sdk.message.ScratchBank;
 
 import org.fablabsantiago.smartcities.app.appmobile.Clases.Alerta;
+import org.fablabsantiago.smartcities.app.appmobile.UI.LoginActivity;
 import org.fablabsantiago.smartcities.app.appmobile.Utils.DatabaseHandler;
 
 import java.text.SimpleDateFormat;
@@ -104,6 +106,13 @@ public class TrackingService extends Service implements
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i(TAG, "onStartCommand - in");
+
+        if (intent == null) {
+            Log.i(TAG, "");
+            Toast.makeText(this, "", Toast.LENGTH_SHORT).show();
+            return mStartMode;
+        }
+
         String action = intent.getAction();
         switch (action) {
             case START_TRACK:
@@ -242,10 +251,9 @@ public class TrackingService extends Service implements
                         Log.i(TAG, "BeanListener msg: " + msg);
                         Toast.makeText(context, "Serial msg: " + msg, Toast.LENGTH_SHORT).show();
 
-                        boolean vote = msg.contains("Pos");
+                        boolean vote = msg.contains("os"); // Positive, positive, pos, Pos, etc...
 
-                        // Se asume que si llega un msje por BT es si o si o un voto, sea negativo o positivo.
-
+                        // Se asume que si llega un msje por BT es si o si o un voto.
                         if (vote) {
                             posVotes += 1;
                         } else {
@@ -259,14 +267,22 @@ public class TrackingService extends Service implements
                         String date = (new SimpleDateFormat("yyyy-MM-dd")).format(new Date());
                         String hour = (new SimpleDateFormat("HH:mm:ss")).format(new Date());
 
+                        // Get user id
+                        SharedPreferences preferences = getSharedPreferences("leBikePreferences", MODE_PRIVATE);
+                        String userId = preferences.getString(LoginActivity.USER_NAME, "");
+
                         // Create Alerta
+                        // Ojo que los CAMPOS NO DEFINIDOS NO DEBEN DEFINIRSE COMO NULL, esto como
+                        // conveción del desarrollo de esta aplicación.
                         Alerta alerta = new Alerta(
                                 0, vote,
                                 location.getLatitude(), location.getLongitude(),
-                                null, // tipo de alerta
+                                "", // tipo de alerta
                                 hour, date,
-                                null, null, // titulo, descripción
-                                idRuta, 0, "pendiente");
+                                "", "", // titulo, descripción
+                                idRuta, 0, Alerta.PENDIENTE,
+                                userId,
+                                false); // uploaded
 
                         // Save alerta in BD
                         baseDatos.newAlerta(alerta);
