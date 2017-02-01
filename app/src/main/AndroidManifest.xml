@@ -24,18 +24,10 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key"/>
 
-        <activity
-            android:name=".Deprecated.StartActivity"
-            android:theme="@style/StartTheme">
-        </activity>
-
         <activity android:name=".UI.LeBikeActivity"
                   android:label="LeBike"
                   android:theme="@style/LeBikeTheme"
                   android:parentActivityName=".Deprecated.StartActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".Deprecated.StartActivity"/>
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -63,31 +55,12 @@
         </activity>
 
         <activity
-            android:name=".Deprecated.OnRouteMapActivity"
-            android:label="LeBike"
-            android:parentActivityName=".UI.LeBikeActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".UI.LeBikeActivity"/>
-        </activity>
-
-        <activity
             android:name=".UI.EnRutaActivity"
             android:label="En Ruta"
             android:parentActivityName=".UI.LeBikeActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".UI.LeBikeActivity"/>
-        </activity>
-
-        <activity
-            android:name=".Deprecated.LePatrimoniosActivity"
-            android:label="LePatrimonios"
-            android:theme="@style/LePatrimonios"
-            android:parentActivityName=".Deprecated.StartActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".Deprecated.StartActivity"/>
         </activity>
 
         <activity
